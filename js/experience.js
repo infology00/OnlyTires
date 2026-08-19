@@ -5,6 +5,19 @@
   var A = function(){ return window.OT_AUDIO; };
 
   var entered = false;   /* declared before anything can set it */
+
+  /* "Ready" should mean what Chrome's own tab spinner means: nothing left
+     in flight. Declared here, before fallback() or anything else can run,
+     so neither path can trip over the var-hoisting trap that has bitten
+     this file before -- a var assigned early by a function call, then
+     silently overwritten back to its default the moment execution reaches
+     the var's own textual declaration further down the script. */
+  var pageDone = (document.readyState === 'complete');
+  var pipelineDone = false;   /* true once EITHER the model+art finish, OR we fall back */
+  function tryReady() {
+    if (pipelineDone && pageDone) { setStage(100, 'Ready'); buildModel(); }
+  }
+  if (!pageDone) addEventListener('load', function () { pageDone = true; tryReady(); });
   var pre      = document.querySelector('.preloader');
   var pctEl    = document.querySelector('.preloader-pct');
   var barEl    = document.querySelector('.preloader-bar i');
@@ -17,9 +30,16 @@
   var seen = document.documentElement.classList.contains('ot-seen');
 
   var shown = 0, target = 0, finished = false;
+  /* The label used to be overwritten unconditionally, so a slower-finishing
+     signal (e.g. window.load, arriving after the brand art already had) could
+     stomp the status text backward -- "Loading brands 23/46" would flash back
+     to "Loading assets" even though the percentage never actually dropped.
+     Only the caller that is currently driving the highest percentage may set
+     the label, matching what's actually true at that moment. */
+  var labelStage = 0;
   function setStage(p, label) {
     target = Math.max(target, p);
-    if (statusEl && label) statusEl.textContent = label;
+    if (statusEl && label && p >= labelStage) { statusEl.textContent = label; labelStage = p; }
   }
 
   function skipPreloader() {
@@ -77,15 +97,13 @@
     } catch (e) { /* never let sound trap the visitor on the splash */ }
     buildModel();                        /* heavy work now, hidden by the exit */
   }
-  /* If anything at all goes sideways, Enter is not the only way out. */
+  /* Only the two real buttons open the door -- clicking anywhere on the
+     splash used to work too, which made it too easy to enter by accident.
+     Keyboard access (Space/Enter once focus reaches a button, or Escape as
+     a deliberate skip) is kept for accessibility, not as a click shortcut. */
   addEventListener('keydown', function (e) {
-    if (!pre || pre.classList.contains('is-done')) return;
-    if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') enter(false);
-  });
-  if (pre) pre.addEventListener('click', function (e) {
-    if (!pre.classList.contains('is-ready')) return;
-    if (e.target.closest('button')) return;      /* the real buttons handle it */
-    enter(false);
+    if (!pre || pre.classList.contains('is-done') || !pre.classList.contains('is-ready')) return;
+    if (e.key === 'Escape') enter(false);
   });
 
   var eSound = document.getElementById('enter-sound');
@@ -132,10 +150,11 @@
   if (matchMedia('(max-width: 760px)').matches) unlockAfterDock();
 
   function fallback() {
-    setStage(100, 'Ready');
     if (heroStage) heroStage.innerHTML = '<img class="tire-fallback" src="assets/logo.webp" alt="OnlyTires performance tire">';
     if (stageWrap) stageWrap.style.display = 'none';
     unlockAfterDock();
+    pipelineDone = true;
+    tryReady();
   }
 
   if (reduce || !stageWrap || typeof THREE === 'undefined' ||
@@ -291,7 +310,7 @@
      ------------------------------------------------------------------ */
   var modelDone = false, artDone = false;
   function maybeReady() {
-    if (modelDone && artDone) { setStage(100, 'Ready'); buildModel(); }
+    if (modelDone && artDone) { pipelineDone = true; tryReady(); }
   }
 
   /* --- brand artwork --- */
@@ -358,8 +377,8 @@
      ------------------------------------------------------------------ */
   var KEYS = [
     { el:document.getElementById('anchor-hero'),     fit:0.94, yaw:-0.55, pitch:0.10 },
-    { el:document.getElementById('anchor-services'), fit:0.88, yaw: 0.85, pitch:0.22 },
-    { el:document.getElementById('anchor-why'),      fit:0.86, yaw:-1.00, pitch:-0.12 },
+    { el:document.getElementById('anchor-services'), fit:0.924, yaw: 0.85, pitch:0.22 },
+    { el:document.getElementById('anchor-why'),      fit:0.903, yaw:-1.00, pitch:-0.12 },
     { el:document.getElementById('dock-slot'),       fit:0.97, yaw: 0.0,  pitch:0.0 }
   ].filter(function(k){ return k.el; });
 

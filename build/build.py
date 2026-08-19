@@ -122,7 +122,7 @@ FOOTER = f'''<div class="tread" aria-hidden="true"></div>
 </footer>
 <div class="mobile-bar">
   <a class="call" href="tel:7547554554">Call Now</a>
-  <a class="quote" href="contact.html">Get a Quote</a>
+  <a class="quote" href="contact.html" data-instant>Get a Quote</a>
 </div>
 <button class="sound-toggle" aria-label="Toggle sound"><i></i><i></i><i></i><i></i></button>'''
 
@@ -185,7 +185,14 @@ def page(filename, active, title, desc, body, home=False, extra_head='', extra_s
     if home:
         extra_head = (extra_head +
           '\n<link rel="preload" href="assets/car_tyre.glb" as="fetch" crossorigin="anonymous">'
-          '\n<link rel="preload" href="assets/brand-tires/michelin.webp" as="image">')
+          '\n<link rel="preload" href="assets/brand-tires/michelin.webp" as="image">'
+          # The sticky "Get a Quote" bar navigates straight to contact.html --
+          # it is the site's primary conversion action, so its destination is
+          # fetched in the background the moment Home is idle, before it is
+          # ever clicked. contact.html is tiny (~14KB), so this costs nothing
+          # meaningful even on a slow connection, and makes the eventual
+          # navigation feel instant regardless of network speed at click time.
+          '\n<link rel="prefetch" href="contact.html">')
     gl  = '<div id="gl-stage" aria-hidden="true"></div>\n' if home else ''
     return f'''<!DOCTYPE html>
 <html lang="en">
@@ -210,8 +217,10 @@ def page(filename, active, title, desc, body, home=False, extra_head='', extra_s
 
 {FOOTER}
 
+<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js" defer></script>
 <script src="js/audio.js" defer></script>
 <script src="js/fx.js" defer></script>
+<script src="js/smooth-scroll.js" defer></script>
 {extra_scripts}
 </body>
 </html>
@@ -267,6 +276,7 @@ print('  brand art: %d logos (%d on white plate), %d backdrops, %d tire photos (
 (R/'js/audio.js').write_text(audio)
 (R/'js/fx.js').write_text(fx)
 (R/'js/tire-wall.js').write_text((R/'source/js/tire-wall.js').read_text())
+(R/'js/smooth-scroll.js').write_text((R/'source/js/smooth-scroll.js').read_text())
 # source/ keeps the fully commented originals; js/ is what ships
 
 # ---- home ----

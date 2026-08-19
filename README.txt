@@ -1,6 +1,93 @@
 ONLYTIRES — only.tires
-v41
+v44
 ======================================================================
+
+WHAT CHANGED IN v44
+
+· STICKY "GET A QUOTE" NOW NAVIGATES INSTANTLY
+  Checked first rather than guessed: contact.html itself is tiny
+  (~14KB) and its map is already loading="lazy", so it wasn't the
+  destination page that was slow. The real cost was self-inflicted --
+  every internal link, including this one, waited a fixed 910ms
+  (the decorative cover/hold animation) before the browser even started
+  fetching the destination.
+
+  That 910ms delay sits on the site's single highest-value action: the
+  persistent bar pinned to the bottom of every screen on mobile. It is
+  now marked as an instant utility link -- it skips the cinematic wipe
+  entirely and navigates right away, keeping just the whoosh sound.
+  Every other internal link (main nav, in-page CTAs) keeps the full
+  transition as before; this is specifically for the always-on quote
+  shortcut, which should feel like a fast utility action rather than a
+  chapter change.
+
+  Also added: contact.html is now prefetched in Home's <head>, so its
+  HTML is already sitting in the browser cache by the time anyone
+  actually clicks -- the eventual navigation is close to instant
+  regardless of connection speed at click time.
+
+  Measured directly: a normal internal link still takes ~913ms before
+  navigating (unchanged, as intended); the instant-marked quote link
+  now navigates in under 1ms.
+
+WHAT CHANGED IN v43
+
+· TIRE 5% BIGGER IN "WHAT WE DO" AND "WHY ONLYTIRES" ONLY
+  services (What We Do): fit 0.88 -> 0.924
+  why (Why OnlyTires):   fit 0.86 -> 0.903
+  Hero and the install bay left untouched.
+
+WHAT CHANGED IN v42
+
+· PRELOADER: ONLY THE TWO BUTTONS OPEN THE DOOR
+  Clicking anywhere on the splash used to enter too -- a leftover
+  escape hatch from an earlier bug hunt that made it too easy to enter
+  by accident. Only "Enter With Sound" / "Enter quietly" work now.
+  Escape still works once ready, for keyboard accessibility.
+
+· CHROME'S TAB SPINNER VS. "READY" -- REAL MISMATCH, FIXED
+  Confirmed: our progress bar only ever tracked our OWN fetches (the 3D
+  model + brand art). It never checked whether the browser itself had
+  actually finished loading -- the Three.js CDN scripts, Google Fonts,
+  or anything else the page references. So it was genuinely possible
+  for the bar to say 100% while Chrome's tab still spun, because real
+  network activity was still in flight underneath us.
+
+  "Ready" now also requires window.load (readyState === 'complete') --
+  the exact same signal the tab spinner itself waits on. This closes
+  the gap for any subresource, not just the ones we already tracked. The
+  new gate was placed at the very top of the script specifically to
+  avoid the var-hoisting trap that has bitten this file before, and the
+  fallback path (reduced-motion / no-WebGL) now goes through the same
+  shared check instead of claiming 100% unconditionally.
+
+  Fixed a smaller bug found while testing this: the status label could
+  flicker backward -- "Loading brands 23/46" briefly reverting to
+  "Loading assets" if a slower signal's label arrived after a faster
+  one's. Only the caller currently driving the highest percentage may
+  set the label now.
+
+  Verified with a real end-to-end simulation: our pipeline finishing
+  alone does NOT show "Ready" while the page is still loading; it only
+  appears once window.load actually fires, matching the tab spinner.
+
+· VERY SLIGHT SMOOTH SCROLLING (Lenis)
+  Added site-wide, tuned deliberately subtle (duration 0.5, lerp 0.16 --
+  a hint of ease, close to native, not a long floaty glide). Lenis
+  writes directly to the real window.scrollY every frame in its default
+  document-scroll mode, so the 3D scroll rig needed no changes at all --
+  it already just reads scrollY each frame and gets the smoothed value
+  for free. Touch is left native (touch already feels smooth; smoothing
+  it further tends to feel laggy). Skipped entirely under
+  prefers-reduced-motion, paused whenever the mobile menu's own scroll
+  lock is active, and the page-load "reset to top" logic now routes
+  through Lenis when it's present so the two never fight over position.
+
+  NOTE: this sandbox has no network access, so the CDN URL
+  (jsdelivr, lenis@1) could not be fetched to confirm here. It resolves
+  to whatever the current 1.x release is, and the script fails
+  gracefully (site just uses native scroll) if the CDN is ever
+  unreachable -- but do check it loads once this is actually hosted.
 
 WHAT CHANGED IN v41
 

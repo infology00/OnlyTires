@@ -14,9 +14,15 @@
     var isReloadOrFresh = !nav || nav.type === 'reload' || nav.type === 'navigate';
     if (isReloadOrFresh) {
       if (scrollY !== 0) scrollTo(0, 0);
-      /* some browsers restore the offset a tick after load */
+      /* some browsers restore the offset a tick after load. By the time
+         'load' fires, smooth-scroll.js has very likely already created
+         window.OT_LENIS -- route through it if so, so Lenis's own idea of
+         "where we are" stays in sync instead of drifting back toward a
+         stale target and re-animating away from the top a moment later. */
       addEventListener('load', function () {
-        if (scrollY !== 0) scrollTo(0, 0);
+        if (scrollY === 0) return;
+        if (window.OT_LENIS) window.OT_LENIS.scrollTo(0, { immediate: true });
+        else scrollTo(0, 0);
       });
     }
   })();
@@ -189,6 +195,19 @@
       var destFile = href.split('#')[0].split('?')[0] || 'index.html';
       if (destFile === currentFile()) {
         if (links && links.classList.contains('is-open')) toggle.click();
+        return;
+      }
+
+      /* A persistent utility action -- the sticky "Get a Quote" bar always
+         pinned to the bottom of the screen -- should feel instant, not like
+         part of the cinematic page-to-page journey. The full cover/hold/
+         reveal sequence added a self-inflicted 910ms of pure waiting before
+         the browser even started fetching the destination, on the site's
+         single highest-value action. Anything marked data-instant skips the
+         decorative wipe and navigates right away. */
+      if (a.hasAttribute('data-instant')) {
+        if (A()) A().whoosh();
+        location.href = markInternal(href);
         return;
       }
 
