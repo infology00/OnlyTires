@@ -1020,15 +1020,25 @@ html.ot-seen .preloader{display:none!important}
   .tire-stage,.do-rail__slot{position:relative;z-index:21}
 }
 
-/* On a phone the wheel belongs to the install bay alone, so the slots that
-   held it further up the page would otherwise leave empty gaps. */
+/* On a phone the wheel belongs to the install bay alone. Every slot that
+   held it further up the page is removed outright — not just emptied — so
+   no reserved height or grid gap is left behind. */
 @media (max-width:760px){
   .hero .tire-stage,
   .do-rail,
-  .do-rail__slot{display:none}
-  .hero-grid{grid-template-columns:1fr}
-  .do-grid{grid-template-columns:1fr}
-  .split:has(.do-rail){grid-template-columns:1fr}
+  .do-rail__slot,
+  #anchor-why{display:none !important}
+
+  /* the grids collapse to a single column with nothing left to balance */
+  .hero-grid,
+  .do-grid,
+  .split{grid-template-columns:1fr;gap:var(--s3)}
+
+  /* those sections no longer need to reserve a screen for the wheel */
+  .hero.vsection{min-height:auto;padding:var(--s5) 0 var(--s6)}
+  .vsection{min-height:auto}
+  .hero-copy .lead{margin-bottom:var(--s3)}
+
   /* the bay is the interactive surface now */
   .dock-slot{position:relative;z-index:21;touch-action:pan-y}
 }

@@ -129,7 +129,7 @@
   }
   /* on a phone the wheel starts seated, so the quote form is never gated
      behind an arrival that will not happen */
-  if (innerWidth < 760) unlockAfterDock();
+  if (matchMedia('(max-width: 760px)').matches) unlockAfterDock();
 
   function fallback() {
     setStage(100, 'Ready');
@@ -343,14 +343,6 @@
     { el:document.getElementById('dock-slot'),       fit:0.84, yaw: 0.0,  pitch:0.0 }
   ].filter(function(k){ return k.el; });
 
-  /* On a phone the wheel does not tour the page at all — it belongs to the
-     install bay and is simply there, in place, from the first frame. The
-     other slots are collapsed in CSS so they leave no gap. Tablet and
-     desktop keep the full set of anchors. */
-  if (innerWidth < 760 && KEYS.length) {
-    KEYS = [KEYS[KEYS.length - 1]];
-  }
-
   /* the section each slot lives in defines that anchor's scroll range */
   KEYS.forEach(function (k) {
     /* fall back to the element itself if a slot is ever moved outside a
@@ -378,15 +370,33 @@
      its slot for whichever section is on screen and simply stays there —
      no gliding, no arc — while remaining fully draggable. Tablet and
      desktop keep the full scroll-driven journey. */
-  function isPhone(){ return innerWidth < 760; }
+  /* Matches the CSS breakpoint. Read live rather than captured once, so a
+     rotation or a late viewport measurement can never leave the rig in the
+     wrong mode. */
+  var phoneQuery = matchMedia('(max-width: 760px)');
+  function isPhone(){ return phoneQuery.matches; }
+
+  /* On a phone the wheel does not tour the page: the install bay is its only
+     home and it sits there from the first frame. Everything above is hidden
+     in CSS so no empty slots are left behind. */
+  /* declared here so onModeChange below can never reset it before the
+     declaration executes (the same hoisting trap that once hid the wheel) */
+  var placed = false;
+  var ALL_KEYS = KEYS;
+  function activeKeys(){
+    return isPhone() ? [ALL_KEYS[ALL_KEYS.length - 1]] : ALL_KEYS;
+  }
+  /* re-place instantly if the mode changes under us */
+  function onModeChange(){ placed = false; }
+  if (phoneQuery.addEventListener) phoneQuery.addEventListener('change', onModeChange);
+  else if (phoneQuery.addListener) phoneQuery.addListener(onModeChange);
 
   var docked = false;
-  var sm = { x:0, y:0, s:1, yaw:-0.55, pitch:0.1 };
   /* The smoothing state starts at its defaults, so the very first rendered
      frame used to ease from the centre of the screen into the hero — the
-     wheel appeared to slide in on arrival. It is now snapped straight to
-     its target the first time it is drawn, on every device. */
-  var placed = false;
+     wheel appeared to slide in on arrival. `placed` (declared above) makes
+     it snap straight to its target the first time it is drawn. */
+  var sm = { x:0, y:0, s:1, yaw:-0.55, pitch:0.1 };
   var spin = 0, spinVel = 0.006, dragging = false, lastX = 0, lastScroll = scrollY;
   var mNX = 0, mNY = 0;
 
@@ -457,6 +467,7 @@
 
     /* Which section is the viewport looking at? */
     var probe = scrollY + innerHeight * 0.5;
+    var KEYS = activeKeys();
     var last = KEYS.length - 1;
     var spans = KEYS.map(function (k, i) { return spanOf(k.section, i === 0, i === last); });
 

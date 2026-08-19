@@ -1,6 +1,30 @@
 ONLYTIRES — only.tires
-v25
+v26
 ======================================================================
+
+WHAT CHANGED IN v26
+
+· MOBILE SNAPPING — HARDENED
+  v25 decided phone-vs-desktop ONCE, when the script first ran, using
+  innerWidth. That is fragile: a rotation, or a viewport that has not
+  settled at script time, leaves the rig in the wrong mode for the rest
+  of the session — which is the most likely reason you still saw the
+  wheel snapping between sections.
+
+  The mode is now read live from the same media query the CSS uses
+  (max-width: 760px), re-evaluated every frame, with a change listener
+  that re-places the wheel instantly on rotation. Verified by simulation:
+  on a phone the wheel is only ever placed in the install bay across a
+  full-page scroll; on desktop it still visits every anchor.
+
+  (Also fixed a repeat of the earlier hoisting trap: the snap flag was
+  being assigned by the rotation handler before its own `var` ran.)
+
+· LEFTOVER SPACING REMOVED
+  The slots that used to hold the wheel higher up the page are now
+  removed outright on phones rather than just emptied, the grids that
+  held them collapse to a single column, and those sections no longer
+  reserve a full screen — so there are no tall blank gaps left behind.
 
 WHAT CHANGED IN v25
 
