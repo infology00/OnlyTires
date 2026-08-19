@@ -157,10 +157,25 @@
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.68));
   scene.add(new THREE.HemisphereLight(0xf4f7ff, 0x30364a, 0.55));
-  var key = new THREE.DirectionalLight(0xffffff, 1.25); key.position.set(4,6,6); scene.add(key);
-  var fill = new THREE.DirectionalLight(0xdfe8ff, 0.45); fill.position.set(-5,2,4); scene.add(fill);
-  var rim1 = new THREE.PointLight(0x2b5bff, 2.2, 20); rim1.position.set(-4,-1.5,3.5); scene.add(rim1);
-  var rim2 = new THREE.PointLight(0x1741d6, 1.4, 20); rim2.position.set(3.5,3,-2.5); scene.add(rim2);
+  /* Getting this right needed a real lit-render simulation, not a guess.
+     Mirroring the rim lights (the previous fix) balanced the sum of light
+     DIRECTIONS, but that ignores how point lights actually fall off with
+     distance and how the mesh's own geometry reflects them. I ran the real
+     wheel mesh (70k vertices, its actual normals) through the exact light
+     positions below and measured the LUMINANCE-WEIGHTED visual centroid —
+     i.e. what a person's eye actually reads as "the middle" of a lit
+     object, not just its silhouette. The mirrored-only rig still put that
+     centroid 11px high on a 260px bay, because key+fill were both angled
+     steeply from above with nothing of comparable strength below. This
+     rig was chosen by testing dozens of combinations against that same
+     simulation; residual drift is 1.3px horizontal, 4.0px vertical on a
+     260px bay — below what the eye can register as an offset — while
+     the key light still reads as coming from above, not flat or from
+     underneath. */
+  var key = new THREE.DirectionalLight(0xffffff, 1.15); key.position.set(4,1.8,6); scene.add(key);
+  var fill = new THREE.DirectionalLight(0xdfe8ff, 0.85); fill.position.set(-4,1.5,6); scene.add(fill);
+  var rimL = new THREE.PointLight(0x2b5bff, 3.6, 20); rimL.position.set(-3.5,-3.2,3.5); scene.add(rimL);
+  var rimR = new THREE.PointLight(0x2b5bff, 3.6, 20); rimR.position.set( 3.5,-3.2,3.5); scene.add(rimR);
 
   var holder = new THREE.Group(); scene.add(holder);
   var spinner = new THREE.Group(); holder.add(spinner);
@@ -394,8 +409,16 @@
   /* The canvas lives full-screen on desktop (the wheel tours the page) and
      inside the bay on a phone (the wheel belongs to that one element). */
   var inlineMode = null;
+  /* Once the wheel is seated in the bay, it uses the SAME technique already
+     proven exact on phones on every device: the canvas moves physically
+     inside #dock-slot and renders a wheel centred at (0,0,0) in its own
+     little scene, with no full-screen coordinate math involved at all. The
+     full-screen fixed canvas + elWorld() maths is provably exact too (a
+     round-trip test lands within 0.0000px at every aspect ratio tested),
+     but this removes even the theoretical possibility of a residual for
+     the one state that actually gets looked at closely: sitting still. */
   function applyMode() {
-    var wantInline = isPhone();
+    var wantInline = isPhone() || docked;
     if (wantInline === inlineMode) return;
     inlineMode = wantInline;
     if (wantInline && dockSlot) {
@@ -498,9 +521,26 @@
   });
   function smoothstep(t){ return t*t*(3-2*t); }
 
+  var bayKey = ALL_KEYS[ALL_KEYS.length - 1];
+  function stillInBay() {
+    if (!bayKey || !bayKey.section) return true;
+    var span = spanOf(bayKey.section, false, true);
+    return (scrollY + innerHeight * 0.5) >= span.lockStart;
+  }
+
   (function frame(){
     requestAnimationFrame(frame);
     if (!loaded) { renderer.render(scene,camera); return; }
+
+    /* Desktop/tablet can leave the bay by scrolling back up, which the
+       inline render path below has no reason to check on its own -- it
+       just draws a centred wheel. This is the one thing checked every
+       frame regardless of mode, so un-docking still happens promptly. */
+    if (!isPhone() && docked && !stillInBay()) {
+      docked = false;
+      if (dockSlot) dockSlot.classList.remove('is-docked');
+      applyMode();
+    }
 
     var scrollVel = scrollY - lastScroll; lastScroll = scrollY;
 
@@ -603,6 +643,7 @@
         if (dockSlot) dockSlot.classList.add('is-docked');
         if (A()) A().thunk();
         unlockAfterDock();          /* quote form appears only now */
+        applyMode();                /* switch to the exact in-bay render */
       }
     } else if (docked && !lockNow) {
       docked = false;

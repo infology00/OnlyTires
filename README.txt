@@ -1,6 +1,171 @@
 ONLYTIRES — only.tires
-v30
+v38
 ======================================================================
+
+WHAT CHANGED IN v38
+
+· CHOPPY TRANSITION ON RETURN TO HOME — FOUND AND FIXED
+  Exact bug: bars rise to cover the screen, vanish for about a second,
+  then reappear already fully covered before the reveal plays normally.
+
+  The 'pagehide' listener called parkVeil() -- which strips the covering
+  class -- UNCONDITIONALLY, on every navigation. But pagehide fires on
+  every ordinary navigation too, not just when a page is being stored in
+  bfcache. Firing mid-rise, it stripped 'is-covering' while the bars were
+  still animating, snapping them back to their resting (invisible) state
+  for the brief window before the destination page's own baked-in
+  covered state took over -- which is instant and opaque, matching
+  "disappear then suddenly snap to fully covered." The reveal that
+  follows was never touched, which is why only that part looked normal.
+
+  parkVeil() on pagehide is now scoped to e.persisted only -- the actual
+  bfcache-store case it was written for. An outgoing page's classes
+  don't matter on an ordinary navigation; the document is about to be
+  destroyed regardless. Verified by simulating pagehide firing mid-rise
+  on a plain navigation (is-covering now survives) and confirmed the
+  legitimate bfcache case still resets correctly.
+
+· WHEEL CENTRING: DESKTOP NOW USES THE SAME MECHANISM AS MOBILE
+  Not a resolution problem, and no more numerical tuning. Once the wheel
+  is seated in the bay, the canvas now moves physically INSIDE #dock-slot
+  and renders a wheel centred at (0,0,0) in its own small scene -- the
+  exact technique already proven exact on phones -- on every device.
+  This removes the full-screen coordinate math entirely for the one
+  state that actually gets looked at closely: sitting still. Leaving the
+  bay by scrolling back up reverses it cleanly.
+
+  Verified end to end with a simulated scroll down a realistic page: the
+  canvas stays on the full-screen fixed layer through hero/services/why,
+  then is re-parented into #dock-slot the instant it seats, and moves
+  back out the instant you scroll above the bay again.
+
+WHAT CHANGED IN v37
+
+· WHEEL CENTRING — THE PRIOR FIX WASN'T ENOUGH, NOW BASED ON A REAL RENDER
+  My v31 fix balanced the SUM OF LIGHT DIRECTIONS, which is a rough
+  approximation — it ignores how point lights actually fall off with
+  distance and how the mesh's real geometry reflects them. This time I
+  ran the actual wheel mesh (70,203 vertices, its real normals) through
+  a full per-vertex Lambertian lighting simulation using the exact light
+  positions in the scene, and measured where a viewer's eye would
+  actually read "the middle" of the lit object — the luminance-weighted
+  visual centroid, not just the silhouette.
+
+  That simulation showed the "balanced" v31 rig still put the visual
+  centroid 11px high on a 260px bay: key and fill were both angled
+  steeply from above with nothing of comparable strength below, and
+  balancing DIRECTION alone doesn't fix that. I grid-searched dozens of
+  light configurations against this same simulation and picked one that
+  keeps a believable overhead key light while reducing residual drift to
+  1.3px horizontal, 4.0px vertical — below where the eye can register an
+  offset.
+
+· PRELOADER REAPPEARING ON EVERY RETURN TO HOME — ROOT CAUSE FOUND
+  Your screenshots show you're testing via file:///C:/Users/..., i.e.
+  double-clicking the page rather than serving it. Several browsers
+  partition or block sessionStorage entirely under file://, sometimes
+  per individual file, which explains why my sessionStorage-only fix
+  worked in every isolated test I ran but not for you in practice.
+
+  The primary channel is now a short #s marker carried on the URL
+  itself when you click an internal link — a channel that cannot be
+  blocked by any storage policy, since it travels with the navigation.
+  sessionStorage remains as a secondary check for normal hosting. The
+  marker is stripped from the address bar immediately via replaceState,
+  so a plain reload of the resulting clean URL still shows the
+  preloader as intended.
+
+  Testing this surfaced a second, real bug: the boot script computed
+  the sessionStorage check and the URL check inside ONE shared try
+  block, so when sessionStorage.getItem() threw (the exact file://
+  failure mode), it aborted the whole block before the URL check was
+  ever reached — silently defeating the very fallback that was meant to
+  save it. Each check now has its own isolated try/catch, so a blocked
+  API can never take another, independent check down with it.
+
+  Verified by simulating a browser where sessionStorage throws on every
+  call: the fix now works using the URL marker alone. Also re-confirmed
+  the existing suite: preloader watchdog, both transition directions,
+  the tire appearing on first and return visits, and the interrupted-
+  navigation lock all still pass.
+
+WHAT CHANGED IN v36
+
+· BAY BACKGROUND WAS ASYMMETRIC — SECOND CAUSE OF THE OFF-CENTRE LOOK
+  v31 fixed a lighting bias on the WHEEL. This is a different bug in the
+  same family, on the BAY behind it: the recessed disc's inset shadow
+  reached 48px in from the top and only 24px from the bottom, so the
+  circle's own shading was darker/deeper at the top and brighter toward
+  the bottom edge. A shaded circle like that has a visual centre below
+  its true centre — so even a perfectly centred wheel sitting on top of
+  it reads as pulled upward, which is exactly what the screenshot showed.
+
+  I verified the actual placement maths is exact first, independent of
+  this: converting a DOM element's centre to world space and back lands
+  within 0.0000px at every aspect ratio I tested (1920x1080, 1366x768,
+  a 390px phone, 2560x1440). So the wheel itself was never mispositioned
+  — it was the disc around it giving a false read. Both shadows now
+  spread the same distance, so the bay reads as evenly lit and the wheel
+  sits visually centred in it.
+
+WHAT CHANGED IN v35
+
+· TEXT SELECTION AND IMAGE SAVING DISABLED
+  Text is no longer selectable with click-and-drag anywhere on the site.
+  Form fields, textareas and dropdowns are explicitly exempted, so typing
+  and picking options still works exactly as before — this only affects
+  reading text, not filling in forms.
+
+  Right-click "Save image as" and the native drag-out gesture are
+  blocked on every <img>, plus the long-press "save/copy" callout on
+  touch devices. Buttons, links and ordinary body text keep their normal
+  right-click menu — only images are affected.
+
+  Worth being upfront about the limits: this is a deterrent, the same
+  kind every site with this feature uses, not real protection. Anyone
+  who wants a file can still get it via browser dev tools, view-source,
+  or a screenshot — no client-side JavaScript can prevent that. It stops
+  the casual right-click save, nothing more.
+
+  Verified: images blocked, images marked data-selectable exempted,
+  buttons and paragraphs unaffected, the carousel's own drag-to-spin
+  (which uses mousedown/touchstart, not native drag) still works.
+
+WHAT CHANGED IN v32
+
+· PRELOADER APPEARING ON EVERY RETURN TO HOME  (regression I introduced)
+  The skip works by setting an 'ot-internal-nav' flag in sessionStorage
+  when you leave a page via an in-site link; the head script on the next
+  page reads it, skips the preloader, and clears it.
+
+  When I rewrote the click handler in v25 to add the rapid-navigation
+  lock, I dropped the line that SETS that flag. The reader was still
+  there, so it silently found nothing every time and the preloader ran
+  on every arrival. The reduced-motion path returned early before
+  reaching it too.
+
+  The flag is now set on every navigation path — including the
+  "already navigating" branch and the reduced-motion branch — and again
+  immediately before the jump. Verified end to end: in-site navigation
+  skips the preloader, a reload still shows it. The previous build fails
+  this test, this one passes.
+
+WHAT CHANGED IN v31
+
+· WHEEL OFF-CENTRE — IT WAS THE LIGHTING
+  First I ruled out the obvious: all 70,203 vertices were projected
+  through the exact transform the code applies, and the residual offset
+  is 0.00px on both axes. The model and its placement are exact.
+
+  The cause was the light rig. Summed by direction and intensity it was
+  biased -0.46 on x and +1.14 on y — brighter to the left and top. On a
+  perfectly symmetrical object that reads as displacement, because the
+  lit edge blooms outward and the eye follows it. Up and to the left is
+  exactly how it looked.
+
+  The two blue rim lights are now mirrored either side of the wheel and
+  the fill was rebalanced. Net bias is +0.10 x and +0.25 y — even glow,
+  and the wheel reads centred in its ring.
 
 WHAT CHANGED IN v30
 

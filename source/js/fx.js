@@ -21,6 +21,22 @@
     }
   })();
 
+  /* ---------- image protection ----------
+     Right-click "Save image as" and the native drag-to-desktop gesture are
+     blocked on every <img>. This is a deterrent, not real DRM — anyone who
+     really wants the file can still get it via dev tools — but it stops the
+     casual right-click save the request is asking for. Buttons, links and
+     anything explicitly opted in via data-selectable keep their normal
+     context menu, so "open in new tab" style workflows are not broken. */
+  document.addEventListener('contextmenu', function (e) {
+    if (e.target && e.target.tagName === 'IMG' && !e.target.closest('[data-selectable]')) {
+      e.preventDefault();
+    }
+  });
+  document.addEventListener('dragstart', function (e) {
+    if (e.target && e.target.tagName === 'IMG') e.preventDefault();
+  });
+
   /* ---------- mobile nav ---------- */
   var toggle = document.querySelector('.nav-toggle');
   var links  = document.querySelector('.nav-links');
@@ -153,11 +169,25 @@
           href.indexOf('http') === 0) return;
       e.preventDefault();
 
-      if (navPending) { navPending = href; return; }   /* let the first run finish */
+      /* Mark this as an in-site navigation BEFORE anything else can return
+         early. Carried TWO ways on purpose: a sessionStorage flag for normal
+         hosting, and a short marker appended to the URL itself as the
+         primary channel. sessionStorage on file:// is partitioned or
+         blocked outright in a number of browsers (sometimes per file, not
+         just per folder), which is exactly what made the preloader reappear
+         on every return to Home when testing by double-clicking the page
+         rather than through a server. A URL marker cannot be blocked by a
+         storage policy — it travels with the navigation itself. */
+      function markInternal(url) {
+        try { sessionStorage.setItem('ot-internal-nav', '1'); } catch (err) {}
+        return url + (url.indexOf('#') === -1 ? '#s' : '');
+      }
+
+      if (navPending) { navPending = href; return; }
       navPending = href;
 
       if (A()) A().whoosh();
-      if (reduce) { location.href = href; return; }
+      if (reduce) { location.href = markInternal(href); return; }
 
       /* Reset the panels to their open position with no transition, force a
          reflow, then animate. Without this a click that lands while the veil
@@ -170,7 +200,9 @@
       veil.classList.add('is-covering');
 
       /* 0.5s to rise (+0.21s stagger) then held fully covered for 0.2s */
-      setTimeout(function () { location.href = navPending || href; }, 910);
+      setTimeout(function () {
+        location.href = markInternal(navPending || href);
+      }, 910);
     });
 
     /* back/forward restore: page comes from bfcache fully rendered,
@@ -178,7 +210,19 @@
     window.addEventListener('pageshow', function (e) {
       if (e.persisted) { revealed = true; parkVeil(); }
     });
-    window.addEventListener('pagehide', function () { parkVeil(); });
+    /* Only reset the veil if this page is actually going INTO bfcache
+       (event.persisted). pagehide also fires on a completely ordinary
+       forward navigation -- calling parkVeil() there stripped the
+       'is-covering' class while the rise animation was still mid-flight,
+       snapping the bars back to invisible for an instant before the next
+       page's own baked-in covered state took over. That was the visible
+       stutter: bars rising, then vanishing, then reappearing already
+       fully covered. Left alone, an outgoing page's classes simply don't
+       matter -- it's about to be destroyed -- so there's nothing to fix
+       on a normal navigation. */
+    window.addEventListener('pagehide', function (e) {
+      if (e.persisted) parkVeil();
+    });
   }
 
   /* ---------- file upload chips ---------- */

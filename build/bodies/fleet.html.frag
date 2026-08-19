@@ -16,9 +16,9 @@
         <h2>Downtime Is Expensive. <span class="accent">We're Not.</span></h2>
         <p class="lead">A dedicated fleet lane, account pricing, and fast turnaround — treated like the business account you are, not a walk-in.</p>
         <div class="stats">
-          <div class="stat"><b>Volume</b><span>Account pricing tiers</span></div>
-          <div class="stat"><b>Fast</b><span>Turnaround focus</span></div>
-          <div class="stat"><b>Planned</b><span>Scheduled service plans</span></div>
+          <div class="stat"><b>Volume</b><span>Account<br>pricing tiers</span></div>
+          <div class="stat"><b>Fast</b><span>Turnaround<br>focus</span></div>
+          <div class="stat"><b>Planned</b><span>Scheduled<br>service plans</span></div>
         </div>
       </div>
       <div class="reveal">

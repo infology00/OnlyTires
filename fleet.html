@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:ital,wght@0,700;0,800;1,700;1,800&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script>/* Runs before first paint. 'ot-internal-nav' is set only when leaving a   page via an in-site link, so arriving that way skips the preloader while   a refresh or a fresh visit still gets it. The flag is cleared on read.   Scroll restoration is turned off too: reloading half way down a page   used to drop you back at that same spot, which fights the intro. */(function(){try{var n=sessionStorage.getItem('ot-internal-nav');if(n==='1'){document.documentElement.className+=' ot-seen';sessionStorage.removeItem('ot-internal-nav');}if('scrollRestoration' in history){history.scrollRestoration='manual';}}catch(e){}})();</script>
+<script>/* Runs before first paint. Two independent signals mean 'this is an   in-site navigation, skip the preloader': a #s marker on the URL   (primary — survives even when sessionStorage is blocked or partitioned,   which is common on file:// and is why the preloader kept reappearing   when testing by double-clicking the page), and an 'ot-internal-nav'   sessionStorage flag as a second check for normal hosting. Either one   is enough. The #s marker is stripped from the address bar immediately   via replaceState, so a genuine reload of the resulting clean URL still   shows the preloader as expected -- it only ever fires once per visit.   Scroll restoration is turned off too: reloading half way down a page   used to drop you back at that same spot, which fought the intro. */(function(){var byHash=false,byStore=false;try{byHash=location.hash==='#s';}catch(e){}try{byStore=sessionStorage.getItem('ot-internal-nav')==='1';}catch(e){}if(byHash||byStore){try{document.documentElement.className+=' ot-seen';}catch(e){}}try{sessionStorage.removeItem('ot-internal-nav');}catch(e){}if(byHash){try{if(history.replaceState){history.replaceState(null,'',location.pathname+location.search);}}catch(e){}}try{if('scrollRestoration' in history){history.scrollRestoration='manual';}}catch(e){}})();</script>
 <link rel="stylesheet" href="css/style.css">
 
 </head>
@@ -58,9 +58,9 @@
         <h2>Downtime Is Expensive. <span class="accent">We're Not.</span></h2>
         <p class="lead">A dedicated fleet lane, account pricing, and fast turnaround — treated like the business account you are, not a walk-in.</p>
         <div class="stats">
-          <div class="stat"><b>Volume</b><span>Account pricing tiers</span></div>
-          <div class="stat"><b>Fast</b><span>Turnaround focus</span></div>
-          <div class="stat"><b>Planned</b><span>Scheduled service plans</span></div>
+          <div class="stat"><b>Volume</b><span>Account<br>pricing tiers</span></div>
+          <div class="stat"><b>Fast</b><span>Turnaround<br>focus</span></div>
+          <div class="stat"><b>Planned</b><span>Scheduled<br>service plans</span></div>
         </div>
       </div>
       <div class="reveal">

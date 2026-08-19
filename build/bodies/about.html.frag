@@ -15,9 +15,9 @@
         <h2>No Upsell Games. <span class="accent">Just Tires, Done Right.</span></h2>
         <p class="lead">We built OnlyTires around one idea: the tire shop experience should be fast, fair, and straight — every single visit.</p>
         <div class="stats">
-          <div class="stat"><b>100%</b><span>Upfront pricing</span></div>
-          <div class="stat"><b>1 Roof</b><span>Tires + custom</span></div>
-          <div class="stat"><b>Local</b><span>Pembroke Pines</span></div>
+          <div class="stat"><b>100%</b><span>Upfront<br>pricing</span></div>
+          <div class="stat"><b>1 Roof</b><span>Tires +<br>custom</span></div>
+          <div class="stat"><b>Local</b><span>Pembroke<br>Pines</span></div>
         </div>
       </div>
       <div class="reveal">

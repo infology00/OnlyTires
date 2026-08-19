@@ -23,6 +23,21 @@
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
+
+/* Text selection disabled site-wide. Inputs, textareas and anything marked
+   data-selectable stay selectable, since that would otherwise break normal
+   form use and copy-paste of a phone number or address. */
+html{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+input,textarea,[contenteditable="true"],[data-selectable]{
+  -webkit-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text;
+}
+/* select/option text and dropdown pickers are exempt everywhere, as many
+   browsers behave oddly if these are non-selectable */
+select,option{-webkit-user-select:auto;user-select:auto}
+
+/* stops the long-press "save/copy image" callout on touch devices, and the
+   ghost-drag image some browsers show when you drag a plain <img> */
+img{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none;pointer-events:auto}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -137,7 +152,7 @@ h3{font-size:clamp(19px,2vw,22px);letter-spacing:.02em}
 .topbar em{opacity:.65;font-style:italic}
 .nav{display:flex;align-items:center;justify-content:space-between;max-width:var(--wrap);margin:0 auto;padding:var(--s2) var(--s3)}
 .brand{display:flex;align-items:center;text-decoration:none}
-.brand img{height:52px;width:auto}
+.brand img{height:44px;width:auto;display:block}
 .nav-links{display:flex;align-items:center;gap:var(--s1);list-style:none}
 .nav-links a{
   text-decoration:none;font-weight:600;font-size:15px;color:var(--ink-soft);
@@ -178,7 +193,7 @@ h3{font-size:clamp(19px,2vw,22px);letter-spacing:.02em}
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:var(--s3);position:relative;z-index:2;text-align:center;padding:var(--s3);
 }
-.preloader-brand img{height:76px;width:auto;background:#fff;border-radius:14px;padding:10px 12px;box-shadow:0 18px 40px -18px rgba(0,0,0,.6)}
+.preloader-brand img{height:96px;width:auto;filter:drop-shadow(0 18px 32px rgba(0,0,0,.5))}
 .preloader-status{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#8FA6FF;min-height:14px}
 .preloader-pct{
   font-family:var(--font-display);font-style:italic;font-weight:800;
@@ -418,7 +433,10 @@ html.ot-seen .preloader{display:none!important}
 .stat b{font-family:var(--font-display);font-style:italic;font-weight:800;font-size:26px;color:var(--blue);display:block;line-height:1}
 .stat span{
   font-size:11.5px;color:var(--ink-soft);letter-spacing:.04em;font-weight:600;
-  text-transform:uppercase;display:block;min-height:2.4em;line-height:1.2;
+  text-transform:uppercase;display:block;line-height:1.25;
+  /* the break points are explicit <br> in the markup, so every label is two
+     lines on every viewport; this just reserves the pair of lines */
+  min-height:2.5em;white-space:normal;
 }
 .stats{align-items:stretch}
 .stat{display:grid;align-content:start;gap:6px}
@@ -441,10 +459,16 @@ html.ot-seen .preloader{display:none!important}
 .dock-spec p{color:#B9C4DE;font-size:13px;margin-top:3px;max-width:none;white-space:nowrap}
 .dock-specs.right .dock-spec p{margin-left:auto}
 .dock-slot{position:relative;width:min(300px,34vh);aspect-ratio:1;border-radius:50%;display:grid;place-items:center}
+/* The recessed bay behind the wheel is a circle, so its own shading has to
+   be even top-to-bottom or its VISUAL centre drifts even when the wheel
+   sitting on top of it is dead centre — this was reaching 48px in from the
+   top and only 24px from the bottom, pulling the eye toward the bottom
+   edge and making the wheel above it read as shifted up-and-off-centre.
+   Both shadows now spread the same distance. */
 .dock-slot::before{
   content:"";position:absolute;inset:0;border-radius:50%;
   background:radial-gradient(closest-side,#0A0F1E 58%,#111C3E 72%,rgba(255,255,255,.05) 100%);
-  box-shadow:inset 0 16px 48px rgba(0,0,0,.7),inset 0 -8px 24px rgba(43,91,255,.15);
+  box-shadow:inset 0 0 34px rgba(0,0,0,.72),inset 0 -6px 30px rgba(43,91,255,.16);
 }
 .dock-slot{--dock-near:0}
 .dock-slot::after{
@@ -458,7 +482,7 @@ html.ot-seen .preloader{display:none!important}
 /* the bay itself deepens as the wheel comes in */
 .dock-slot::before{transition:box-shadow .5s var(--ease-soft)}
 .dock-slot.is-docked::before{
-  box-shadow:inset 0 16px 48px rgba(0,0,0,.78),inset 0 -8px 28px rgba(43,91,255,.3);
+  box-shadow:inset 0 0 36px rgba(0,0,0,.8),inset 0 -6px 34px rgba(43,91,255,.32);
 }
 .dock-slot .slot-label{opacity:calc(1 - var(--dock-near))}
 @keyframes slot-rotate{to{transform:rotate(360deg)}}
@@ -538,7 +562,7 @@ html.ot-seen .preloader{display:none!important}
 
 .site-footer{background:var(--ink);color:#B9C4DE;position:relative;z-index:20}
 .footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:var(--s5);max-width:var(--wrap);margin:0 auto;padding:var(--s8) var(--s3) var(--s5)}
-.footer-brand img{height:56px;margin-bottom:var(--s2);background:#fff;border-radius:12px;padding:var(--s1)}
+.footer-brand img{height:48px;margin-bottom:var(--s2);width:auto}
 .footer-brand p{font-size:14px;max-width:32ch}
 .site-footer h4{font-family:var(--font-display);font-style:italic;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.06em;font-size:15px;margin-bottom:var(--s2)}
 .site-footer ul{list-style:none;display:grid;gap:var(--s1)}
@@ -649,9 +673,10 @@ html.ot-seen .preloader{display:none!important}
   .nav-toggle.is-open span:nth-child(2){opacity:0}
   .nav-toggle.is-open span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
 
-  /* the logo is hidden while the menu is open — the close button is the
-     only thing that needs to sit above the panel */
-  body.menu-open .brand{opacity:0;pointer-events:none;transition:opacity .25s ease}
+  /* the logo has real transparency now, so it can stay visible on the blue
+     panel like everywhere else — no hiding or white-chip trick needed */
+  body.menu-open .brand{position:relative;z-index:10}
+  body.menu-open .brand img{filter:drop-shadow(0 6px 14px rgba(0,0,0,.4))}
   body.menu-open{overflow:hidden}
 
   .topbar{font-size:10.5px;gap:var(--s2);flex-wrap:wrap;text-align:center}
@@ -955,7 +980,7 @@ html.ot-seen .preloader{display:none!important}
   .lead{font-size:15px}
 
   .topbar{gap:var(--s1) var(--s2);padding:6px var(--s2);line-height:1.5}
-  .brand img{height:44px}
+  .brand img{height:36px}
 
   .hero-actions{width:100%;gap:var(--s1)}
   .hero-actions .btn{width:100%}
