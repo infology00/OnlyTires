@@ -987,7 +987,6 @@ html.ot-seen .preloader{display:none!important}
   /* install bay stacks cleanly */
   .dock-card{padding:var(--s4) var(--s2)}
   .dock-slot{width:min(200px,52vw)}
-  .dock-spec p{max-width:none}
   .dock-head{margin-bottom:var(--s3)}
 
   /* location + hoos */
@@ -1055,7 +1054,14 @@ html.ot-seen .preloader{display:none!important}
 .dock-slot .slot-label{z-index:3}
 
 @media (max-width:760px){
-  /* the step copy reads as two tidy lines rather than one long one */
-  .dock-spec p{max-width:24ch;margin-left:auto;margin-right:auto}
-  .dock-specs.right .dock-spec p{margin-left:auto;margin-right:auto}
+  /* Each step's grey line breaks into exactly two lines. Checked against
+     all four strings (45-50 chars): 28ch is the narrowest width where every
+     one of them fits in two lines — 26ch pushes "Torque" onto a third.
+     text-wrap:balance evens the pair out where supported. */
+  .dock-spec p,
+  .dock-specs.right .dock-spec p{
+    max-width:29ch;
+    margin-left:auto;margin-right:auto;
+    text-wrap:balance;
+  }
 }
