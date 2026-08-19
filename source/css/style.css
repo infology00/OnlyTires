@@ -438,7 +438,7 @@ html.ot-seen .preloader{display:none!important}
 .dock-specs.right{text-align:right}
 .dock-spec b{font-family:var(--font-display);font-style:italic;font-weight:800;font-size:20px;color:#fff;display:block;text-transform:uppercase}
 .dock-spec span{color:#8FA6FF;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
-.dock-spec p{color:#B9C4DE;font-size:13px;margin-top:3px;max-width:24ch}
+.dock-spec p{color:#B9C4DE;font-size:13px;margin-top:3px;max-width:none}
 .dock-specs.right .dock-spec p{margin-left:auto}
 .dock-slot{position:relative;width:min(300px,34vh);aspect-ratio:1;border-radius:50%;display:grid;place-items:center}
 .dock-slot::before{
@@ -574,7 +574,7 @@ html.ot-seen .preloader{display:none!important}
   .footer-grid{grid-template-columns:1fr 1fr}
   .dock-card{grid-template-columns:1fr;text-align:center;gap:var(--s4)}
   .dock-specs,.dock-specs.right{text-align:center;grid-auto-flow:column;gap:var(--s3)}
-  .dock-spec p{margin:3px auto 0;max-width:22ch}
+  .dock-spec p{margin:3px auto 0;max-width:none}
   .dock-slot{order:-1;margin:0 auto;width:min(220px,30vh)}
   .vsection{min-height:auto;padding:var(--s8) 0}
   .hero.vsection{min-height:auto}
@@ -939,7 +939,7 @@ html.ot-seen .preloader{display:none!important}
   .dock-card{padding:var(--s5) var(--s4);gap:var(--s3)}
   .dock-slot{width:min(240px,42vw)}
   .dock-specs,.dock-specs.right{grid-auto-flow:row;gap:var(--s2)}
-  .dock-spec p{max-width:32ch}
+  .dock-spec p{max-width:none}
 
   /* forms */
   .quote-side{padding:var(--s4)}
@@ -1054,14 +1054,15 @@ html.ot-seen .preloader{display:none!important}
 .dock-slot .slot-label{z-index:3}
 
 @media (max-width:760px){
-  /* Each step's grey line breaks into exactly two lines. Checked against
-     all four strings (45-50 chars): 28ch is the narrowest width where every
-     one of them fits in two lines — 26ch pushes "Torque" onto a third.
-     text-wrap:balance evens the pair out where supported. */
+  /* PHONE ONLY: each step's grey line breaks into two centred lines.
+     Checked against all four strings (45-50 chars): 28ch is the narrowest
+     width where every one fits in two lines — 26ch pushes "Torque" onto a
+     third. Desktop and tablet keep these on a single line. */
   .dock-spec p,
   .dock-specs.right .dock-spec p{
     max-width:29ch;
     margin-left:auto;margin-right:auto;
+    text-align:center;
     text-wrap:balance;
   }
 }
