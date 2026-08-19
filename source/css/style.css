@@ -178,17 +178,7 @@ h3{font-size:clamp(19px,2vw,22px);letter-spacing:.02em}
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:var(--s3);position:relative;z-index:2;text-align:center;padding:var(--s3);
 }
-.preloader-ring{
-  width:96px;height:96px;border-radius:50%;position:relative;
-  border:3px solid rgba(255,255,255,.12);animation:pl-spin 2.6s linear infinite;
-}
-.preloader-ring::before{
-  content:"";position:absolute;inset:-3px;border-radius:50%;
-  border:3px solid transparent;border-top-color:var(--blue-hot);border-right-color:var(--blue-hot);
-}
-.preloader-ring::after{content:"";position:absolute;inset:14px;border-radius:50%;border:7px dashed rgba(255,255,255,.22)}
-@keyframes pl-spin{to{transform:rotate(360deg)}}
-.preloader-brand img{height:64px;width:auto;background:#fff;border-radius:12px;padding:var(--s1)}
+.preloader-brand img{height:76px;width:auto;background:#fff;border-radius:14px;padding:10px 12px;box-shadow:0 18px 40px -18px rgba(0,0,0,.6)}
 .preloader-status{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#8FA6FF;min-height:14px}
 .preloader-pct{
   font-family:var(--font-display);font-style:italic;font-weight:800;
@@ -1016,4 +1006,12 @@ html.ot-seen .preloader{display:none!important}
   .config-arrow--prev{left:12%}
   .config-arrow--next{left:88%}
   .dock-slot{width:min(180px,58vw)}
+}
+
+/* the wheel's anchor slots accept a finger without blocking page scroll */
+.tire-stage,.do-rail__slot,.dock-slot{touch-action:pan-y}
+@media (max-width:760px){
+  /* on a phone the wheel is placed rather than travelling, so its slots are
+     the interactive surface — a horizontal drag spins it, vertical scrolls */
+  .tire-stage,.do-rail__slot{position:relative;z-index:21}
 }

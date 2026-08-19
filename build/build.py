@@ -132,7 +132,6 @@ VEIL = ('<div class="page-veil is-covered" aria-hidden="true">'
 
 PRELOADER = f'''<div class="preloader" aria-label="Loading OnlyTires">
   <div class="preloader-inner">
-    <div class="preloader-ring" aria-hidden="true"></div>
     <div class="preloader-brand"><img src="{logo}" alt="OnlyTires"></div>
     <div class="preloader-status">Warming up</div>
     <div class="preloader-pct">0%</div>

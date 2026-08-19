@@ -1,6 +1,31 @@
 ONLYTIRES — only.tires
-v19
+v23
 ======================================================================
+
+WHAT CHANGED IN v23
+
+· PRELOADER NOW WAITS FOR EVERYTHING
+  All 23 brand tires, all 23 logos and the brand backdrops are fetched
+  during the preloader alongside the 3D model. Enter only appears once
+  BOTH the model and every image are in, so nothing pops in later. The
+  status line counts them ("Loading brands 31/70"). A missing or stalled
+  image cannot hold the door shut — it counts as done, and a 15s
+  watchdog remains as a final backstop.
+
+· SPINNING RING REMOVED
+  The loading ring above the logo is gone entirely, markup and CSS. The
+  logo is slightly larger to hold the space on its own.
+
+· PHONES: THE WHEEL IS PLACED, NOT SCROLLED
+  Below 760px the wheel no longer travels with the scroll. It is simply
+  in position for whichever section is on screen, with no gliding, no
+  arc and no scroll-driven rotation. Tablet and desktop keep the full
+  scroll-driven journey exactly as before.
+
+  It stays interactive: every anchor slot is now a drag surface, so you
+  can spin the wheel with a finger anywhere it appears, not just in the
+  hero. Vertical panning still scrolls the page normally
+  (touch-action: pan-y).
 
 WHAT CHANGED IN v19
 

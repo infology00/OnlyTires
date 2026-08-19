@@ -54,7 +54,7 @@
 
     /* Watchdog. Whatever happens to the 3D model, the door opens. Nobody is
        ever left staring at a stalled percentage. */
-    setTimeout(function(){ setStage(100, 'Ready'); }, 7000);
+    setTimeout(function(){ setStage(100, 'Ready'); }, 15000);
   }
 
   function enter(withSound) {
@@ -228,7 +228,7 @@
       var end = Math.min(i + 262144, len);
       for (; i < end; i++) out[i] = str.charCodeAt(i);
       if (i < len) {
-        setStage(48 + Math.round((i / len) * 40), 'Decoding 3D tire');
+        setStage(20 + Math.round((i / len) * 30), 'Decoding 3D tire');
         setTimeout(slice, 0);
       } else done(out.buffer);
     })();
@@ -261,12 +261,54 @@
     }, 260);
   }
 
-  setStage(48, 'Loading 3D tire');
+  /* ------------------------------------------------------------------
+     Everything the visitor will actually see is fetched before the door
+     opens: the 3D model's bytes, and every brand tire and logo used by the
+     carousel. That way nothing pops in later.
+     ------------------------------------------------------------------ */
+  var modelDone = false, artDone = false;
+  function maybeReady() {
+    if (modelDone && artDone) { setStage(100, 'Ready'); buildModel(); }
+  }
+
+  /* --- brand artwork --- */
+  (function preloadBrandArt() {
+    var urls = [];
+    ['__OT_BRAND_TIRES__', '__OT_BRAND_LOGOS__', '__OT_BRAND_BGS__'].forEach(function (key) {
+      var map = window[key];
+      if (!map) return;
+      for (var k in map) if (map.hasOwnProperty(k) && map[k]) urls.push(map[k]);
+    });
+    if (!urls.length) { artDone = true; maybeReady(); return; }
+
+    var loaded = 0, total = urls.length;
+    function tick() {
+      loaded++;
+      /* brand art occupies 55 -> 96 on the bar */
+      setStage(55 + Math.round((loaded / total) * 41),
+               'Loading brands ' + loaded + '/' + total);
+      if (loaded >= total) { artDone = true; maybeReady(); }
+    }
+    urls.forEach(function (u) {
+      var img = new Image();
+      img.onload = tick;
+      img.onerror = tick;          /* a missing file must not hold the door */
+      img.decoding = 'async';
+      img.src = u;
+    });
+    /* never let a stalled image trap anyone */
+    setTimeout(function () {
+      if (!artDone) { artDone = true; maybeReady(); }
+    }, 12000);
+  })();
+
+  /* --- 3D model --- */
+  setStage(20, 'Loading 3D tire');
   decodeModel(function (buf) {
     modelBuffer = buf;
     if (!buf) { fallback(); return; }
-    setStage(100, 'Ready');          /* ready to enter; parse waits for you */
-    buildModel();                    /* no-ops until `entered` is true */
+    modelDone = true;
+    maybeReady();
   });
 
   function worldPerPx(){ return (2*Math.tan(FOV*Math.PI/360)*CAMZ)/innerHeight; }
@@ -321,6 +363,12 @@
     };
   }
 
+  /* On a phone the wheel does not travel with the scroll. It is placed in
+     its slot for whichever section is on screen and simply stays there —
+     no gliding, no arc — while remaining fully draggable. Tablet and
+     desktop keep the full scroll-driven journey. */
+  function isPhone(){ return innerWidth < 760; }
+
   var docked = false;
   var sm = { x:0, y:0, s:1, yaw:-0.55, pitch:0.1 };
   /* The smoothing state starts at its defaults, so the very first rendered
@@ -331,24 +379,38 @@
   var spin = 0, spinVel = 0.006, dragging = false, lastX = 0, lastScroll = scrollY;
   var mNX = 0, mNY = 0;
 
-  var dz = document.querySelector('.drag-zone');
-  if (dz) {
-    var px = function(e){ return e.touches ? e.touches[0].clientX : e.clientX; };
-    dz.addEventListener('mousedown', function(e){ dragging=true; lastX=px(e); });
-    dz.addEventListener('touchstart', function(e){ dragging=true; lastX=px(e); }, {passive:true});
-    addEventListener('mouseup', function(){ dragging=false; });
-    addEventListener('touchend', function(){ dragging=false; });
-    addEventListener('mousemove', function(e){
-      if (!dragging) return;
-      var d = px(e)-lastX; lastX = px(e);
-      spinVel = Math.max(-0.3, Math.min(0.3, d*0.0035));
-    });
-    dz.addEventListener('touchmove', function(e){
+  /* ---- drag to spin ----
+     The hero has a dedicated drag surface. On touch devices the wheel also
+     appears in the other section slots, so those become drag surfaces too —
+     otherwise it would be interactive in the hero only. Vertical panning is
+     preserved (touch-action:pan-y), so the page still scrolls normally. */
+  var px = function(e){ return e.touches ? e.touches[0].clientX : e.clientX; };
+
+  function makeDraggable(el) {
+    if (!el || el.__otDrag) return;
+    el.__otDrag = true;
+    el.style.touchAction = 'pan-y';
+    el.style.pointerEvents = 'auto';
+    el.addEventListener('mousedown',  function(e){ dragging=true; lastX=px(e); });
+    el.addEventListener('touchstart', function(e){ dragging=true; lastX=px(e); }, {passive:true});
+    el.addEventListener('touchmove',  function(e){
       if (!dragging) return;
       var d = px(e)-lastX; lastX = px(e);
       spinVel = Math.max(-0.3, Math.min(0.3, d*0.0035));
     }, {passive:true});
   }
+
+  makeDraggable(document.querySelector('.drag-zone'));
+  KEYS.forEach(function (k) { makeDraggable(k.el); });
+
+  addEventListener('mouseup', function(){ dragging=false; });
+  addEventListener('touchend', function(){ dragging=false; });
+  addEventListener('mousemove', function(e){
+    if (!dragging) return;
+    var d = px(e)-lastX; lastX = px(e);
+    spinVel = Math.max(-0.3, Math.min(0.3, d*0.0035));
+  });
+
   addEventListener('mousemove', function(e){
     mNX = e.clientX/innerWidth - 0.5;
     mNY = e.clientY/innerHeight - 0.5;
@@ -395,7 +457,11 @@
     }
 
     var Ak, Bk, te, travelling;
-    if (inside >= 0) {
+    if (isPhone()) {
+      /* snap to the nearest anchor rather than animating between them */
+      var pick = inside >= 0 ? inside : (next !== -1 ? next : (prev !== -1 ? prev : 0));
+      Ak = Bk = KEYS[pick]; te = 0; travelling = false;
+    } else if (inside >= 0) {
       /* locked: the wheel rides this section's slot for its whole length */
       Ak = Bk = KEYS[inside]; te = 0; travelling = false;
     } else if (prev === -1) {
@@ -469,8 +535,9 @@
       stageWrap.classList.toggle('is-parked', r.bottom < innerHeight * 0.12);
     }
 
-    /* damping firms up as the wheel nears the bay: smooth glide, solid seat */
-    var d = docked ? 0.3 : (travelling && finalSeg ? 0.085 + te * 0.1 : 0.095);
+    /* damping firms up as the wheel nears the bay: smooth glide, solid seat.
+       On a phone there is nothing to ease — it is simply already in place. */
+    var d = isPhone() ? 1 : (docked ? 0.3 : (travelling && finalSeg ? 0.085 + te * 0.1 : 0.095));
     if (!placed) {
       /* first paint: be exactly where we belong, with no entrance move */
       placed = true;
@@ -480,8 +547,12 @@
     sm.x += (tx-sm.x)*d;
     sm.y += (ty-sm.y)*d;
     sm.s += (ts-sm.s)*d;
-    sm.yaw   += ((tyaw   + (docked?0:mNX*0.22)) - sm.yaw)*(docked?0.2:0.07);
-    sm.pitch += ((tpitch + (docked?0:mNY*0.13 + Math.max(-0.2,Math.min(0.2,scrollVel*0.003)))) - sm.pitch)*(docked?0.2:0.07);
+    if (isPhone()) {
+      sm.yaw = tyaw; sm.pitch = tpitch;
+    } else {
+      sm.yaw   += ((tyaw   + (docked?0:mNX*0.22)) - sm.yaw)*(docked?0.2:0.07);
+      sm.pitch += ((tpitch + (docked?0:mNY*0.13 + Math.max(-0.2,Math.min(0.2,scrollVel*0.003)))) - sm.pitch)*(docked?0.2:0.07);
+    }
 
     holder.position.set(sm.x, sm.y, 0);
     holder.scale.setScalar(sm.s);
@@ -490,7 +561,7 @@
 
     spin += spinVel;
     spinVel += ((docked?0.001:0.006) - spinVel)*0.02;
-    spinner.rotation.z = -scrollY*0.005 - spin;
+    spinner.rotation.z = (isPhone() ? 0 : -scrollY*0.005) - spin;
 
     dust.rotation.y += 0.0004;
     dust.position.y = scrollY*0.0012;
