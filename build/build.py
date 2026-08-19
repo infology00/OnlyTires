@@ -146,10 +146,14 @@ PRELOADER = f'''<div class="preloader" aria-label="Loading OnlyTires">
 HEAD_BOOT = ("<script>"
   "/* Runs before first paint. 'ot-internal-nav' is set only when leaving a"
   "   page via an in-site link, so arriving that way skips the preloader while"
-  "   a refresh or a fresh visit still gets it. The flag is cleared on read. */"
+  "   a refresh or a fresh visit still gets it. The flag is cleared on read."
+  "   Scroll restoration is turned off too: reloading half way down a page"
+  "   used to drop you back at that same spot, which fights the intro. */"
   "(function(){try{var n=sessionStorage.getItem('ot-internal-nav');"
   "if(n==='1'){document.documentElement.className+=' ot-seen';"
-  "sessionStorage.removeItem('ot-internal-nav');}}catch(e){}})();"
+  "sessionStorage.removeItem('ot-internal-nav');}"
+  "if('scrollRestoration' in history){history.scrollRestoration='manual';}"
+  "}catch(e){}})();"
   "</script>")
 
 def page(filename, active, title, desc, body, home=False, extra_head='', extra_scripts=''):

@@ -764,7 +764,7 @@ html.ot-seen .preloader{display:none!important}
   position:absolute;inset:-5%;background-size:cover;background-position:center 58%;
   filter:contrast(1.06) brightness(.46) saturate(.55);
   opacity:0;transform:scale(1.05);
-  transition:opacity .46s var(--ease-soft),transform .9s var(--ease-soft);
+  transition:opacity .34s var(--ease-soft),transform .8s var(--ease-soft);
 }
 .config-bg.is-active{opacity:1;transform:none}
 .config-stage__bg::after{
@@ -831,7 +831,7 @@ html.ot-seen .preloader{display:none!important}
   position:relative;z-index:3;text-align:center;
   padding:var(--s3) var(--s5) var(--s2);
   display:grid;justify-items:center;gap:6px;
-  transition:opacity .22s var(--ease-soft),transform .3s var(--ease-soft);
+  transition:opacity .18s var(--ease-soft),transform .26s var(--ease-soft);
 }
 .config-copy.is-swapping{opacity:0;transform:translateY(6px)}
 .config-logo{

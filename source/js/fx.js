@@ -4,6 +4,23 @@
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var A = function(){ return window.OT_AUDIO; };
 
+  /* ---------- always open at the top ----------
+     history.scrollRestoration is set to 'manual' in the head, but browsers
+     may still have applied a restored offset before this runs, so put the
+     page back at the top on a fresh load. A back/forward restore from
+     bfcache is left alone — returning to where you were is correct there. */
+  (function () {
+    var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    var isReloadOrFresh = !nav || nav.type === 'reload' || nav.type === 'navigate';
+    if (isReloadOrFresh) {
+      if (scrollY !== 0) scrollTo(0, 0);
+      /* some browsers restore the offset a tick after load */
+      addEventListener('load', function () {
+        if (scrollY !== 0) scrollTo(0, 0);
+      });
+    }
+  })();
+
   /* ---------- mobile nav ---------- */
   var toggle = document.querySelector('.nav-toggle');
   var links  = document.querySelector('.nav-links');

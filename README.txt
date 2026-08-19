@@ -1,6 +1,24 @@
 ONLYTIRES — only.tires
-v23
+v24
 ======================================================================
+
+WHAT CHANGED IN v24
+
+· RELOAD NOW STARTS AT THE TOP
+  Browsers restore your scroll position on reload, which dropped you back
+  mid-page and fought the intro. `history.scrollRestoration` is set to
+  'manual' before first paint, and the page is put back to the top on a
+  fresh load or reload. A back/forward restore from bfcache is left
+  alone — returning to where you were is correct there.
+
+· FAST CAROUSEL CLICKING SHOWS SOMETHING
+  Each step faded the panel out for 190ms before writing the new brand
+  in. Clicking faster than that restarted the fade every time, so the
+  content never got the chance to appear — hammering the arrow showed a
+  blank panel. Steps arriving within 320ms of each other now swap
+  instantly and skip the fade; slower steps keep the cross-fade as
+  before. Simulated at one step per 90ms: 0 blank frames out of 12.
+  Backdrop and image transitions were tightened slightly so they keep up.
 
 WHAT CHANGED IN v23
 

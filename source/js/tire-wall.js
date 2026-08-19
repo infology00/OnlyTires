@@ -139,36 +139,61 @@
       front = (front + 1) % layers.length;
     }
 
+    /* Writes the brand into the DOM. Kept separate from the animation so a
+       fast run of clicks can apply content instantly rather than queueing
+       another fade. */
+    function applyContent(item) {
+      brand.textContent = item.name;
+      if (focusImg) {
+        focusImg.src = tireFor(index);
+        focusImg.alt = item.name + ' tire';
+      }
+      if (sidePrev) sidePrev.src = tireFor(mod(index - 1, DATA.length));
+      if (sideNext) sideNext.src = tireFor(mod(index + 1, DATA.length));
+      if (region) region.textContent = item.region;
+      if (blurb) blurb.textContent = item.blurb;
+      if (learn) learn.href = item.url;
+      if (logoImg && LOGOS[item.slug]) {
+        logoImg.src = LOGOS[item.slug];
+        logoImg.alt = item.name;
+      }
+      var logoBox = document.getElementById('configLogo');
+      if (logoBox) logoBox.classList.toggle('on-plate', PLATE.indexOf(item.slug) !== -1);
+    }
+
+    function clearSwap() {
+      if (copy) copy.classList.remove('is-swapping');
+      if (rack) rack.classList.remove('is-stepping');
+      if (focusImg) focusImg.classList.remove('is-swapping');
+    }
+
+    var lastStepAt = 0;
+
     function render() {
       var item = DATA[index];
+      var now = Date.now();
+      /* Each step used to fade the panel out for 190ms before writing the new
+         brand in. Clicking faster than that restarted the fade every time, so
+         the content never became visible at all. When steps arrive quickly we
+         now swap straight away and skip the fade entirely — it stays snappy
+         and always shows something. */
+      var rapid = (now - lastStepAt) < 320;
+      lastStepAt = now;
 
-      if (copy) copy.classList.add('is-swapping');
-      if (rack) rack.classList.add('is-stepping');
       clearTimeout(swapTimer);
 
-      if (focusImg) focusImg.classList.add('is-swapping');
-
-      swapTimer = setTimeout(function () {
-        brand.textContent = item.name;
-        if (focusImg) {
-          focusImg.src = tireFor(index);
-          focusImg.alt = item.name + ' tire';
-          focusImg.classList.remove('is-swapping');
-        }
-        if (sidePrev) sidePrev.src = tireFor(mod(index - 1, DATA.length));
-        if (sideNext) sideNext.src = tireFor(mod(index + 1, DATA.length));
-        if (region) region.textContent = item.region;
-        if (blurb) blurb.textContent = item.blurb;
-        if (learn) { learn.href = item.url; }
-        if (logoImg && LOGOS[item.slug]) {
-          logoImg.src = LOGOS[item.slug];
-          logoImg.alt = item.name;
-        }
-        var logoBox = document.getElementById('configLogo');
-        if (logoBox) logoBox.classList.toggle('on-plate', PLATE.indexOf(item.slug) !== -1);
-        if (copy) copy.classList.remove('is-swapping');
-        if (rack) rack.classList.remove('is-stepping');
-      }, reduce ? 0 : 190);
+      if (rapid || reduce) {
+        applyContent(item);
+        clearSwap();
+      } else {
+        if (copy) copy.classList.add('is-swapping');
+        if (rack) rack.classList.add('is-stepping');
+        if (focusImg) focusImg.classList.add('is-swapping');
+        swapTimer = setTimeout(function () {
+          applyContent(item);
+          clearSwap();
+        }, 190);
+      }
 
       paintBackdrop(item.slug);
 
