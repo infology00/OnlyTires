@@ -1,0 +1,196 @@
+<section class="page-hero">
+  <div class="wrap">
+    <div class="crumb"><a href="index.html">Home</a> / Tires</div>
+    <span class="eyebrow">The star product</span>
+    <h1>Tires For <span class="accent">Whatever You Drive.</span></h1>
+    <p class="lead">All major brands, every size — for daily drivers, trucks, and fleets. Not sure what you need? Send us your info and we'll match you to the right set.</p>
+    <p style="margin-top:var(--s3)"><a class="btn btn--primary btn--lg" href="#quote">Get a Quote <span class="btn-arrow">→</span></a></p>
+  </div>
+</section>
+
+<section class="vsection">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">What we offer</span>
+      <h2>Buying Tires, <span class="accent">Made Easy.</span></h2>
+    </div>
+    <div class="tiles" style="grid-template-columns:repeat(2,1fr)">
+      <div class="tile reveal">
+        <span class="tile-num">01</span>
+        <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="9"/><path d="M24 6v9M24 33v9M6 24h9M33 24h9"/></svg>
+        <h3>All Major Tire Brands</h3>
+        <p>Every leading brand, every popular size — plus honest guidance on which one fits your driving and budget.</p>
+      </div>
+      <div class="tile reveal">
+        <span class="tile-num">02</span>
+        <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 34h36"/><path d="M10 34V20l8-8h14l8 10v12"/><circle cx="15" cy="36" r="4"/><circle cx="34" cy="36" r="4"/></svg>
+        <h3>Passenger · Truck/SUV · Commercial</h3>
+        <p>Daily drivers, work trucks, SUVs, and commercial vehicles — matched to how and where you actually drive.</p>
+      </div>
+      <div class="tile reveal">
+        <span class="tile-num">03</span>
+        <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M24 6l4.5 9.5L39 17l-7.5 7 2 10.5L24 29.5 14.5 34.5l2-10.5L9 17l10.5-1.5z"/></svg>
+        <h3>Professional Installation</h3>
+        <p>Mounting, balancing, and installation done right — by people who do it all day, every day.</p>
+      </div>
+      <div class="tile reveal">
+        <span class="tile-num">04</span>
+        <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M14 10h20l4 8v20H10V18z"/><path d="M18 26l4 4 8-8"/></svg>
+        <h3>Disposal &amp; Recycling</h3>
+        <p>New tire disposal and old tire recycling handled for you — nothing left in your trunk.</p>
+      </div>
+    </div>
+    <div class="reveal" style="margin-top:var(--s5)">
+      <span class="eyebrow">Brands we carry</span>
+      <div class="chips">
+        <span class="chip">Michelin</span><span class="chip">Goodyear</span><span class="chip">Bridgestone</span>
+        <span class="chip">Continental</span><span class="chip">Pirelli</span><span class="chip">BFGoodrich</span>
+        <span class="chip">Yokohama</span><span class="chip">Hankook</span><span class="chip">+ All Major Brands</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="vsection vsection--alt" id="quote">
+  <div class="wrap">
+    <div class="quote-panel reveal">
+      <div class="quote-side">
+        <span class="eyebrow" style="color:#8FA6FF">Fast · Fair</span>
+        <h2>Get a Fast Quote</h2>
+        <p>Send your vehicle and tire size, or a photo of your current tire.</p>
+        <ul>
+          <li>Not sure of the size? A photo of the sidewall works.</li>
+          <li>We'll match you to the right set — no upsell games.</li>
+        </ul>
+        <div class="tread" aria-hidden="true"></div>
+      </div>
+      <form class="quote-form" data-quote-form>
+        <div class="form-success" role="status">✓ Sent! We'll get you a fast, fair quote and get you rolling.</div>
+        <div class="form-row">
+          <div class="field"><label for="t-name">Name <b>*</b></label><input id="t-name" name="name" type="text" required autocomplete="name"></div>
+          <div class="field"><label for="t-phone">Phone <b>*</b></label><input id="t-phone" name="phone" type="tel" required autocomplete="tel"></div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="t-size">Tire size</label>
+            <select id="t-size" name="tire_size">
+              <option value="">Select size…</option>
+              <option>185/65R15</option>
+              <option>195/65R15</option>
+              <option>205/55R16</option>
+              <option>205/65R16</option>
+              <option>215/55R17</option>
+              <option>215/60R16</option>
+              <option>215/65R17</option>
+              <option>225/45R17</option>
+              <option>225/50R17</option>
+              <option>225/60R17</option>
+              <option>225/65R17</option>
+              <option>235/45R18</option>
+              <option>235/55R18</option>
+              <option>235/60R18</option>
+              <option>235/65R17</option>
+              <option>245/40R18</option>
+              <option>245/45R18</option>
+              <option>245/60R18</option>
+              <option>245/70R17</option>
+              <option>255/50R19</option>
+              <option>255/55R18</option>
+              <option>255/60R18</option>
+              <option>265/60R18</option>
+              <option>265/65R17</option>
+              <option>265/70R16</option>
+              <option>265/70R17</option>
+              <option>275/55R20</option>
+              <option>275/60R20</option>
+              <option>275/65R18</option>
+              <option>285/45R22</option>
+              <option>285/70R17</option>
+              <option>305/35R24</option>
+              <option>LT265/75R16</option>
+              <option>LT285/75R16</option>
+              <option>Not sure / check my tire</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="t-year">Year</label>
+            <select id="t-year" name="year">
+              <option value="">Select year…</option>
+              <option>2026</option>
+              <option>2025</option>
+              <option>2024</option>
+              <option>2023</option>
+              <option>2022</option>
+              <option>2021</option>
+              <option>2020</option>
+              <option>2019</option>
+              <option>2018</option>
+              <option>2017</option>
+              <option>2016</option>
+              <option>2015</option>
+              <option>2014</option>
+              <option>2013</option>
+              <option>2012</option>
+              <option>2011</option>
+              <option>2010</option>
+              <option>2009</option>
+              <option>2008</option>
+              <option>2007</option>
+              <option>2006</option>
+              <option>2005</option>
+              <option>2004</option>
+              <option>2003</option>
+              <option>2002</option>
+              <option>2001</option>
+              <option>2000</option>
+              <option>1999</option>
+              <option>1998</option>
+              <option>1997</option>
+              <option>1996</option>
+              <option>1995</option>
+              <option>Older than 1995</option>
+            </select>
+          </div>
+          <div class="field field--full">
+            <label for="t-model">Car make &amp; model</label>
+            <input id="t-model" name="model" type="text" placeholder="e.g. Toyota Tacoma SR5">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="t-need">What do you need? <b>*</b></label>
+            <select id="t-need" name="need" required>
+              <option value="">Select…</option>
+              <option>New tires</option>
+              <option>Rotation / balance</option>
+              <option>Alignment</option>
+              <option>TPMS</option>
+              <option>Flat repair</option>
+              <option>General service</option>
+              <option>Fleet</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="t-when">Preferred day/time</label>
+            <input id="t-when" name="when" type="text" placeholder="e.g. Saturday morning">
+          </div>
+        </div>
+        <div class="field field--file">
+          <label for="t-photo">Photo of your tire (optional)</label>
+          <label class="filedrop" for="t-photo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v13"/></svg>
+            <span class="filedrop-text">
+              <b>Upload a photo</b>
+              <small>Drag &amp; drop, or tap to browse — the sidewall works best</small>
+            </span>
+            <input id="t-photo" name="photo" type="file" accept="image/*">
+          </label>
+        </div>
+        <div class="field"><label for="t-msg">Message</label><textarea id="t-msg" name="message" placeholder="Anything else we should know?"></textarea></div>
+        <button class="btn btn--primary btn--lg" type="submit">Get My Fast Quote <span class="btn-arrow">→</span></button>
+        <p class="form-note">Only name and phone are required. We'll text or call you back fast.</p>
+      </form>
+    </div>
+  </div>
+</section>
