@@ -314,7 +314,7 @@
     maybeReady();
   });
 
-  function worldPerPx(){ return (2*Math.tan(FOV*Math.PI/360)*CAMZ)/innerHeight; }
+  function worldPerPx(){ return (2*Math.tan(FOV*Math.PI/360)*CAMZ)/viewSize().h; }
   function elWorld(el){
     var r = el.getBoundingClientRect(), w = worldPerPx();
     return {
@@ -386,8 +386,27 @@
   function activeKeys(){
     return isPhone() ? [ALL_KEYS[ALL_KEYS.length - 1]] : ALL_KEYS;
   }
+  /* The canvas lives full-screen on desktop (the wheel tours the page) and
+     inside the bay on a phone (the wheel belongs to that one element). */
+  var inlineMode = null;
+  function applyMode() {
+    var wantInline = isPhone();
+    if (wantInline === inlineMode) return;
+    inlineMode = wantInline;
+    if (wantInline && dockSlot) {
+      dockSlot.appendChild(stageWrap);
+      stageWrap.classList.add('is-inline');
+      stageWrap.classList.remove('is-parked');
+    } else {
+      document.body.appendChild(stageWrap);
+      stageWrap.classList.remove('is-inline');
+    }
+    placed = false;
+    resize();
+  }
+
   /* re-place instantly if the mode changes under us */
-  function onModeChange(){ placed = false; }
+  function onModeChange(){ applyMode(); }
   if (phoneQuery.addEventListener) phoneQuery.addEventListener('change', onModeChange);
   else if (phoneQuery.addListener) phoneQuery.addListener(onModeChange);
 
@@ -437,13 +456,28 @@
     mNY = e.clientY/innerHeight - 0.5;
   });
 
+  function viewSize(){
+    /* measure the host element when inline; fall back to the viewport if it
+       cannot be measured for any reason */
+    var host = inlineMode ? (stageWrap.parentElement || dockSlot) : null;
+    if (host && host.getBoundingClientRect) {
+      var r = host.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        return { w: Math.max(1, r.width), h: Math.max(1, r.height) };
+      }
+    }
+    return { w: innerWidth, h: innerHeight };
+  }
   function resize(){
-    renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 760 ? 1.6 : 2));
-    renderer.setSize(innerWidth, innerHeight);
-    camera.aspect = innerWidth/innerHeight;
+    var v = viewSize();
+    renderer.setPixelRatio(Math.min(devicePixelRatio, isPhone() ? 1.6 : 2));
+    renderer.setSize(v.w, v.h, false);
+    camera.aspect = v.w / v.h;
     camera.updateProjectionMatrix();
   }
-  addEventListener('resize', resize); resize();
+  addEventListener('resize', function(){ applyMode(); resize(); });
+  applyMode();
+  resize();
 
   /* Coming back via bfcache restores the page mid-scroll; re-measure and make
      sure the canvas is not left parked from wherever you were standing. */
@@ -466,6 +500,26 @@
     var scrollVel = scrollY - lastScroll; lastScroll = scrollY;
 
     /* Which section is the viewport looking at? */
+    if (inlineMode) {
+      /* centred in the bay's own canvas — no page geometry involved */
+      var vh = viewSize();
+      var fit = Math.min(vh.w, vh.h) * worldPerPx() * 0.82;
+      if (!placed) { placed = true; sm.x = 0; sm.y = 0; sm.s = fit; sm.yaw = 0; sm.pitch = 0; }
+      sm.s += (fit - sm.s) * 0.2;
+      holder.position.set(0, 0, 0);
+      holder.scale.setScalar(sm.s);
+      holder.rotation.y = 0;
+      holder.rotation.x = 0;
+      if (!docked && dockSlot) { docked = true; dockSlot.classList.add('is-docked'); unlockAfterDock(); }
+      spin += spinVel;
+      spinVel += (0.004 - spinVel) * 0.02;
+      spinner.rotation.z = -spin;
+      dust.visible = false;
+      renderer.render(scene, camera);
+      return;
+    }
+    dust.visible = true;
+
     var probe = scrollY + innerHeight * 0.5;
     var KEYS = activeKeys();
     var last = KEYS.length - 1;

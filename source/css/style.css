@@ -1042,3 +1042,20 @@ html.ot-seen .preloader{display:none!important}
   /* the bay is the interactive surface now */
   .dock-slot{position:relative;z-index:21;touch-action:pan-y}
 }
+
+/* On a phone the 3D canvas is moved inside the install bay and sized to it,
+   so the wheel is part of that element and can never be drawn over another
+   section. On desktop it stays the full-screen fixed canvas. */
+#gl-stage.is-inline{
+  position:absolute;inset:0;z-index:1;
+  pointer-events:auto;touch-action:pan-y;border-radius:50%;overflow:hidden;
+}
+#gl-stage.is-inline canvas{width:100%;height:100%;display:block}
+.dock-slot::after{z-index:2}
+.dock-slot .slot-label{z-index:3}
+
+@media (max-width:760px){
+  /* the step copy reads as two tidy lines rather than one long one */
+  .dock-spec p{max-width:24ch;margin-left:auto;margin-right:auto}
+  .dock-specs.right .dock-spec p{margin-left:auto;margin-right:auto}
+}

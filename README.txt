@@ -1,6 +1,29 @@
 ONLYTIRES — only.tires
-v26
+v27
 ======================================================================
+
+WHAT CHANGED IN v27
+
+· MOBILE: THE WHEEL IS NOW *STRUCTURALLY* INSIDE THE BAY
+  Previous attempts kept the wheel on the full-screen fixed canvas and
+  merely told it to aim at the bay's coordinates. That is why it still
+  appeared to travel: a fixed canvas draws over the whole viewport, so
+  the wheel was always technically able to show up anywhere, and any
+  timing or measurement hiccup put it there.
+
+  On phones the canvas element is now physically moved INTO the install
+  bay and sized to it, and the wheel is simply centred in its own little
+  canvas with no page geometry involved at all. It cannot be drawn over
+  another section because it is no longer on a canvas that covers them.
+  Rotating back to tablet/desktop moves it out again automatically.
+
+  Verified by simulation: on a phone the rig never measures any section,
+  the canvas is re-parented into #dock-slot and carries .is-inline; on
+  desktop it stays a fixed full-screen canvas touring every anchor.
+
+· INSTALL BAY STEP COPY
+  Capped to 24 characters per line on phones so each step reads as two
+  tidy lines instead of one long one.
 
 WHAT CHANGED IN v26
 
