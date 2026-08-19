@@ -242,6 +242,10 @@ html.ot-seen .preloader{display:none!important}
 }
 /* the page loads already covered; no transition, this is the starting state */
 .page-veil.is-covered i{transform:scaleY(1);transform-origin:top;transition:none}
+/* held for a single frame to snap the panels back to their open position
+   before a fresh cover run, so an interrupted transition never starts
+   half-way through */
+.page-veil.is-instant i{transition:none !important}
 
 /* LEAVING: rise from the bottom, staggered left to right */
 .page-veil.is-covering{pointer-events:all}
@@ -1014,4 +1018,17 @@ html.ot-seen .preloader{display:none!important}
   /* on a phone the wheel is placed rather than travelling, so its slots are
      the interactive surface — a horizontal drag spins it, vertical scrolls */
   .tire-stage,.do-rail__slot{position:relative;z-index:21}
+}
+
+/* On a phone the wheel belongs to the install bay alone, so the slots that
+   held it further up the page would otherwise leave empty gaps. */
+@media (max-width:760px){
+  .hero .tire-stage,
+  .do-rail,
+  .do-rail__slot{display:none}
+  .hero-grid{grid-template-columns:1fr}
+  .do-grid{grid-template-columns:1fr}
+  .split:has(.do-rail){grid-template-columns:1fr}
+  /* the bay is the interactive surface now */
+  .dock-slot{position:relative;z-index:21;touch-action:pan-y}
 }

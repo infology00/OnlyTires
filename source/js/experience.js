@@ -127,6 +127,9 @@
       afterDock.classList.add('is-unlocked');
     }
   }
+  /* on a phone the wheel starts seated, so the quote form is never gated
+     behind an arrival that will not happen */
+  if (innerWidth < 760) unlockAfterDock();
 
   function fallback() {
     setStage(100, 'Ready');
@@ -340,6 +343,14 @@
     { el:document.getElementById('dock-slot'),       fit:0.84, yaw: 0.0,  pitch:0.0 }
   ].filter(function(k){ return k.el; });
 
+  /* On a phone the wheel does not tour the page at all — it belongs to the
+     install bay and is simply there, in place, from the first frame. The
+     other slots are collapsed in CSS so they leave no gap. Tablet and
+     desktop keep the full set of anchors. */
+  if (innerWidth < 760 && KEYS.length) {
+    KEYS = [KEYS[KEYS.length - 1]];
+  }
+
   /* the section each slot lives in defines that anchor's scroll range */
   KEYS.forEach(function (k) {
     /* fall back to the element itself if a slot is ever moved outside a
@@ -458,9 +469,8 @@
 
     var Ak, Bk, te, travelling;
     if (isPhone()) {
-      /* snap to the nearest anchor rather than animating between them */
-      var pick = inside >= 0 ? inside : (next !== -1 ? next : (prev !== -1 ? prev : 0));
-      Ak = Bk = KEYS[pick]; te = 0; travelling = false;
+      /* one anchor only: the bay. Always there, never travelling. */
+      Ak = Bk = KEYS[0]; te = 0; travelling = false;
     } else if (inside >= 0) {
       /* locked: the wheel rides this section's slot for its whole length */
       Ak = Bk = KEYS[inside]; te = 0; travelling = false;
@@ -499,8 +509,9 @@
       tpitch *= (1 - te * te);
     }
 
-    /* seated only once the bay's own section owns the viewport */
-    var lockNow = (inside === KEYS.length - 1);
+    /* seated once the bay's section owns the viewport — always true on a
+       phone, where the bay is the wheel's only home */
+    var lockNow = isPhone() ? true : (inside === KEYS.length - 1);
     var slotW = dockSlot ? elWorld(dockSlot) : null;
     if (lockNow && slotW) {
       tx = slotW.x; ty = slotW.y;

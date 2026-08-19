@@ -1,6 +1,31 @@
 ONLYTIRES — only.tires
-v24
+v25
 ======================================================================
+
+WHAT CHANGED IN v25
+
+· PHONES: THE WHEEL LIVES IN THE INSTALL BAY
+  It no longer snaps between sections as you scroll. Below 760px the bay
+  is its only anchor, so it is simply sitting in place from the first
+  frame — and stays draggable there. The slots further up the page are
+  collapsed so they leave no empty gaps, and the quote form unlocks
+  immediately rather than waiting for an arrival that never happens.
+  Tablet and desktop keep the full scroll-driven journey.
+
+· INTERRUPTED PAGE TRANSITIONS
+  Clicking a second link while the first transition was still running
+  re-added `is-covering` to panels that were already at their end
+  transform — nothing to animate, so the screen just went dark instantly
+  and only the slide-out played on the next page.
+
+  A navigation now owns the transition: further clicks do not restart it,
+  they only update the destination, so you land on the last link you
+  clicked with one clean animation. The panels are also snapped back to
+  their open position for a frame before each cover run, so a click that
+  arrives mid-reveal still animates from fully open.
+
+  Simulated three clicks 200ms apart: 1 cover animation, destination
+  = the last link clicked.
 
 WHAT CHANGED IN v24
 

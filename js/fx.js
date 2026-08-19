@@ -137,6 +137,13 @@
   else setTimeout(function () { if (!revealed) revealIn(true); }, 9000);
 
   if (veil) {
+    /* A navigation already under way owns the transition. A second click used
+       to re-add `is-covering` while the panels were still mid-cover — the
+       transform was already at its end value, so nothing animated and the
+       screen simply went dark. Now the first animation is allowed to finish
+       and the destination is just updated to whatever you clicked last. */
+    var navPending = null;
+
     document.addEventListener('click', function (e) {
       var a = e.target.closest && e.target.closest('a[href]');
       if (!a) return;
@@ -145,18 +152,25 @@
           href.indexOf('tel:') === 0 || href.indexOf('mailto:') === 0 ||
           href.indexOf('http') === 0) return;
       e.preventDefault();
-      /* mark this as an in-site navigation so Home skips the preloader on
-         arrival — a refresh or a fresh visit has no such mark and gets it */
-      try { sessionStorage.setItem('ot-internal-nav', '1'); } catch (err) {}
+
+      if (navPending) { navPending = href; return; }   /* let the first run finish */
+      navPending = href;
+
       if (A()) A().whoosh();
       if (reduce) { location.href = href; return; }
-      veil.classList.remove('is-revealing', 'is-covered');
-      /* force a reflow so the growth starts from scaleY(0), never mid-state */
+
+      /* Reset the panels to their open position with no transition, force a
+         reflow, then animate. Without this a click that lands while the veil
+         is still revealing would start the cover from a half-open state. */
+      veil.classList.add('is-instant');
+      veil.classList.remove('is-revealing', 'is-covered', 'is-covering');
+      void veil.offsetWidth;
+      veil.classList.remove('is-instant');
       void veil.offsetWidth;
       veil.classList.add('is-covering');
-      /* 0.5s to rise (+0.21s stagger) then held fully covered for 0.2s
-         before the next page takes over */
-      setTimeout(function () { location.href = href; }, 910);
+
+      /* 0.5s to rise (+0.21s stagger) then held fully covered for 0.2s */
+      setTimeout(function () { location.href = navPending || href; }, 910);
     });
 
     /* back/forward restore: page comes from bfcache fully rendered,
