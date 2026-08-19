@@ -160,6 +160,12 @@
        and the destination is just updated to whatever you clicked last. */
     var navPending = null;
 
+    /* the filename this document was loaded as, e.g. "tires.html" */
+    function currentFile() {
+      var p = location.pathname.split('/').pop();
+      return p || 'index.html';
+    }
+
     document.addEventListener('click', function (e) {
       var a = e.target.closest && e.target.closest('a[href]');
       if (!a) return;
@@ -168,6 +174,23 @@
           href.indexOf('tel:') === 0 || href.indexOf('mailto:') === 0 ||
           href.indexOf('http') === 0) return;
       e.preventDefault();
+
+      /* Clicking a link to the page you're already on (e.g. Home from the
+         nav while already on Home) is a SAME-DOCUMENT navigation once #s is
+         appended -- changing only the hash never reloads the page in any
+         browser. That left the cover animation with nothing to ever reveal
+         it again (stuck fully covered), and the #s marker permanently
+         stuck in the address bar since the code that strips it only runs
+         on a genuine page load -- which a later real reload would then
+         misread as "arrived via internal nav" and wrongly skip the
+         preloader. Simplest correct behaviour: it's already the current
+         page, so there's nothing to navigate to -- just close the mobile
+         menu if open and stop, with no transition and no hash added. */
+      var destFile = href.split('#')[0].split('?')[0] || 'index.html';
+      if (destFile === currentFile()) {
+        if (links && links.classList.contains('is-open')) toggle.click();
+        return;
+      }
 
       /* Mark this as an in-site navigation BEFORE anything else can return
          early. Carried TWO ways on purpose: a sessionStorage flag for normal

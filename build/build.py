@@ -41,6 +41,7 @@ def strip_js_comments(js):
     js = _re.sub(r'\n{3,}', '\n\n', js)
     return js
 logo = 'assets/logo.webp'
+favicon = 'assets/favicon.png'   # the original white-background mark
 css   = (R/'source/css/style.css').read_text()
 audio = (R/'source/js/audio.js').read_text()
 fx    = (R/'source/js/fx.js').read_text()
@@ -153,17 +154,26 @@ HEAD_BOOT = ("<script>"
   "   is enough. The #s marker is stripped from the address bar immediately"
   "   via replaceState, so a genuine reload of the resulting clean URL still"
   "   shows the preloader as expected -- it only ever fires once per visit."
+  "   As a second layer, an EXPLICIT reload (F5 / the reload button) always"
+  "   shows the preloader, overriding both signals -- so even a stray #s"
+  "   or leftover storage flag surviving somehow can never suppress it on"
+  "   a reload the visitor deliberately asked for."
   "   Scroll restoration is turned off too: reloading half way down a page"
   "   used to drop you back at that same spot, which fought the intro. */"
   "(function(){"
+  "var isReload=false;"
+  "try{var nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];"
+  "isReload=nav?nav.type==='reload':(performance.navigation&&performance.navigation.type===1);}catch(e){}"
   "var byHash=false,byStore=false;"
+  "if(!isReload){"
   "try{byHash=location.hash==='#s';}catch(e){}"
   "try{byStore=sessionStorage.getItem('ot-internal-nav')==='1';}catch(e){}"
+  "}"
   "if(byHash||byStore){"
   "try{document.documentElement.className+=' ot-seen';}catch(e){}"
   "}"
   "try{sessionStorage.removeItem('ot-internal-nav');}catch(e){}"
-  "if(byHash){"
+  "if(location.hash==='#s'){"
   "try{if(history.replaceState){history.replaceState(null,'',location.pathname+location.search);}}catch(e){}"
   "}"
   "try{if('scrollRestoration' in history){history.scrollRestoration='manual';}}catch(e){}"
@@ -184,7 +194,7 @@ def page(filename, active, title, desc, body, home=False, extra_head='', extra_s
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{title}</title>
 <meta name="description" content="{desc}">
-<link rel="icon" href="{logo}">
+<link rel="icon" href="{favicon}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:ital,wght@0,700;0,800;1,700;1,800&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">

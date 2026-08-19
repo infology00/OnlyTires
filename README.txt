@@ -1,6 +1,90 @@
 ONLYTIRES — only.tires
-v38
+v41
 ======================================================================
+
+WHAT CHANGED IN v41
+
+· WHEEL SIZE INCREASED AGAIN
+  Fit raised further at every anchor: hero 0.85->0.94, services
+  0.79->0.88, why 0.77->0.86, install bay 0.90->0.97 (essentially fills
+  the ring now).
+
+· DOCKING HAPPENS LATER, ON PURPOSE
+  The bay's "you've arrived" threshold used the same generic pad as
+  every other section, so it locked the wheel into place the moment you
+  barely crossed into the section -- before its own heading had even
+  finished scrolling into view. It now needs an extra 28% of one screen's
+  worth of scroll on top of that before it counts as arrived, so there's
+  a visibly longer travel-and-settle before it snaps in. Quantified: on a
+  typical layout that is roughly 250px of extra scroll. The un-dock
+  threshold (leaving the bay by scrolling back up) automatically stays
+  in sync, since it reads the exact same calculation.
+
+· FAVICON RESTORED TO THE ORIGINAL WHITE-BACKGROUND MARK
+  The nav, footer, preloader and mobile menu keep the current logo with
+  real transparency (from v34). The browser tab icon specifically now
+  uses your original white-background artwork again, cropped to a clean
+  256px square.
+
+WHAT CHANGED IN v40
+
+· CAROUSEL DRAG DIRECTION WAS INVERTED
+  Confirmed against the UI's own established convention: the next-arrow
+  button sits on the right and calls step(1); the left arrow calls
+  step(-1); the right keyboard arrow also calls step(1). Dragging right
+  was calling step(-1) -- backwards relative to every other control.
+  Fixed and verified: dragging right now steps forward, left steps back.
+
+· WHEEL SIZE INCREASED
+  Fit raised roughly 8-9% at every anchor: hero 0.78->0.85, services
+  0.72->0.79, why 0.70->0.77, the install bay 0.84->0.90.
+
+· SMOOTHER SPIN
+  Two changes. The spin velocity used to be SET directly from the raw
+  per-frame mouse-move delta -- mouse events don't arrive at a constant
+  rate or distance, so the wheel's speed visibly stuttered while
+  dragging. It's now blended toward that value a fraction each frame
+  instead of jumping to it, and the same blending replaces the idle
+  spin's easing, which was fairly aggressive (a full 2% correction per
+  frame) and could look slightly jerky settling after a drag. Traced
+  numerically: a fast flick now ramps up over about 15 frames with no
+  overshoot or oscillation, and releasing eases back down gently rather
+  than snapping.
+
+WHAT CHANGED IN v39
+
+· CLICKING THE PAGE YOU'RE ALREADY ON — FOUND AND FIXED (explains both
+  halves of the report)
+  Clicking, say, "Home" while already on Home appended a #s marker and
+  assigned it to location.href. But changing only the hash on the SAME
+  document is a same-page navigation in every browser -- it does NOT
+  reload the page. So:
+
+    1. The cover animation started and finished rising, but no real
+       navigation ever happened to reveal it again afterward -- it was
+       stuck fully covering the screen, matching "gets stuck mid
+       animation" (really: stuck at the end of it, permanently).
+    2. The #s marker was left sitting in the address bar forever, since
+       the code that strips it only runs on a genuine page load, which
+       never happened. A later manual reload then found that stale #s
+       still there, mistook it for an internal arrival, and skipped the
+       preloader -- matching "upon reloading it just loads without the
+       preloader."
+
+  Clicking a link to the current page is now a clean no-op: no
+  animation, no navigation, no hash added, and the mobile menu closes if
+  it was open. As a second, independent layer, an explicit reload (F5)
+  now always shows the preloader regardless of anything in the URL or
+  storage -- so even a stray leftover marker from any other edge case
+  can never suppress it on a reload you deliberately asked for.
+
+  Verified by reproducing the exact failure against the previous build
+  first (cover animation gets stuck permanently, reload skips the
+  preloader), then confirming this build passes the identical test.
+  Full regression suite re-run and still passing: preloader gate on
+  first/return visits, both transition directions, the interrupted-
+  navigation lock, the mobile in-bay wheel, and the desktop seated-wheel
+  centring all still hold.
 
 WHAT CHANGED IN v38
 

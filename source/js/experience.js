@@ -357,10 +357,10 @@
      the handover between one section and the next.
      ------------------------------------------------------------------ */
   var KEYS = [
-    { el:document.getElementById('anchor-hero'),     fit:0.78, yaw:-0.55, pitch:0.10 },
-    { el:document.getElementById('anchor-services'), fit:0.72, yaw: 0.85, pitch:0.22 },
-    { el:document.getElementById('anchor-why'),      fit:0.70, yaw:-1.00, pitch:-0.12 },
-    { el:document.getElementById('dock-slot'),       fit:0.84, yaw: 0.0,  pitch:0.0 }
+    { el:document.getElementById('anchor-hero'),     fit:0.94, yaw:-0.55, pitch:0.10 },
+    { el:document.getElementById('anchor-services'), fit:0.88, yaw: 0.85, pitch:0.22 },
+    { el:document.getElementById('anchor-why'),      fit:0.86, yaw:-1.00, pitch:-0.12 },
+    { el:document.getElementById('dock-slot'),       fit:0.97, yaw: 0.0,  pitch:0.0 }
   ].filter(function(k){ return k.el; });
 
   /* the section each slot lives in defines that anchor's scroll range */
@@ -379,9 +379,16 @@
     var top = r.top + scrollY, h = r.height;
     var pad = Math.max(Math.min(h * 0.16, innerHeight * 0.45), innerHeight * 0.16);
     if (pad > h * 0.34) pad = h * 0.34;          /* never eat a short section */
+    /* The install bay gets a deeper entry threshold than every other
+       section: an extra chunk of scroll (28% of the viewport) is added
+       on top of the normal pad before it counts as "arrived," so the
+       wheel keeps travelling and settling in visibly for longer before
+       it snaps into the ring -- it was grabbing the wheel the moment you
+       barely crossed into the section, which read as premature. */
+    var enterExtra = isLast ? innerHeight * 0.28 : 0;
     return {
       top: top, bottom: top + h,
-      lockStart: isFirst ? top - innerHeight : top + pad,
+      lockStart: isFirst ? top - innerHeight : top + pad + enterExtra,
       lockEnd:   isLast  ? top + h + innerHeight : top + h - pad
     };
   }
@@ -473,10 +480,11 @@
 
   addEventListener('mouseup', function(){ dragging=false; });
   addEventListener('touchend', function(){ dragging=false; });
+  var spinTarget = 0.008;   /* smoothed toward this every frame, never jumped to */
   addEventListener('mousemove', function(e){
     if (!dragging) return;
     var d = px(e)-lastX; lastX = px(e);
-    spinVel = Math.max(-0.3, Math.min(0.3, d*0.0035));
+    spinTarget = Math.max(-0.3, Math.min(0.3, d*0.0035));
   });
 
   addEventListener('mousemove', function(e){
@@ -682,8 +690,15 @@
     holder.rotation.y = sm.yaw;
     holder.rotation.x = sm.pitch;
 
+    /* Blend toward the current target every frame -- while dragging that
+       target is the (still per-frame-noisy) mouse delta, while idle it eases
+       toward a gentle constant. Either way the actual spin velocity only
+       ever moves a fraction of the way each frame, which is what turns raw,
+       jittery input into a smooth, continuous roll. */
+    var idleTarget = docked ? 0.0012 : 0.006;
+    var target = dragging ? spinTarget : idleTarget;
+    spinVel += (target - spinVel) * (dragging ? 0.18 : 0.012);
     spin += spinVel;
-    spinVel += ((docked?0.001:0.006) - spinVel)*0.02;
     spinner.rotation.z = (isPhone() ? 0 : -scrollY*0.005) - spin;
 
     dust.rotation.y += 0.0004;

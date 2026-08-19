@@ -122,7 +122,12 @@
     function onDrag(e) {
       if (!dragging) return;
       var d = px(e) - lastX; lastX = px(e); acc += d;
-      if (Math.abs(acc) > 60) { step(acc > 0 ? -1 : 1); acc = 0; }
+      /* Dragging right should feel like reaching toward the right/next
+         side -- which is exactly what the next-arrow button (on the right,
+         calling step(1)) and the right-arrow key already do. Dragging
+         right was triggering step(-1) here, the opposite of every other
+         control in this UI. */
+      if (Math.abs(acc) > 60) { step(acc > 0 ? 1 : -1); acc = 0; }
     }
     addEventListener('mousemove', onDrag);
     stage.addEventListener('touchmove', onDrag, { passive: true });
