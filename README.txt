@@ -1,6 +1,24 @@
 ONLYTIRES — only.tires
-v27
+v30
 ======================================================================
+
+WHAT CHANGED IN v30
+
+· WHEEL NOW SITS DEAD CENTRE IN THE BAY
+  Not a model problem — I checked the glTF and its world bounding box is
+  centred at the origin. It was damping: once seated, the wheel was still
+  easing toward the slot at 0.3 per frame, so while the page was moving
+  it trailed the ring. Simulated at an ordinary scroll speed that is a
+  steady 28px offset, which is exactly what the screenshot showed.
+
+  A seated wheel is part of the bay, so it now tracks the slot 1:1 with
+  no easing at all — 0px offset, moving or still. The model is also
+  re-centred after its axle rotation, so no residual offset can survive.
+
+· DESKTOP STEP COPY BACK TO ONE LINE
+  The base rule now carries white-space:nowrap so it is guaranteed on a
+  single line rather than depending on the column being wide enough.
+  Tablet restores normal wrapping; phones keep the two centred lines.
 
 WHAT CHANGED IN v27
 

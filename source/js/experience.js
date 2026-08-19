@@ -256,6 +256,11 @@
           if (axle === 'x') wrap.rotation.y = Math.PI / 2;
           else if (axle === 'y') wrap.rotation.x = Math.PI / 2;
           wrap.scale.setScalar(1 / Math.max(size.x, size.y, size.z));
+          /* re-measure once the axle rotation is applied and correct any
+             residual offset, so the wheel is dead centre on its anchor */
+          var after = new THREE.Box3().setFromObject(wrap);
+          var ac = new THREE.Vector3(); after.getCenter(ac);
+          wrap.position.sub(ac);
           spinner.add(wrap);
           modelBuffer = null;
           loaded = true;
@@ -611,9 +616,10 @@
       stageWrap.classList.toggle('is-parked', r.bottom < innerHeight * 0.12);
     }
 
-    /* damping firms up as the wheel nears the bay: smooth glide, solid seat.
-       On a phone there is nothing to ease — it is simply already in place. */
-    var d = isPhone() ? 1 : (docked ? 0.3 : (travelling && finalSeg ? 0.085 + te * 0.1 : 0.095));
+    /* Damping firms up as the wheel nears the bay. Once seated it is 1:1 with
+       the slot — any easing there shows up as the wheel lagging a few pixels
+       behind the ring while the page is moving, which looks off-centre. */
+    var d = (isPhone() || docked) ? 1 : (travelling && finalSeg ? 0.085 + te * 0.1 : 0.095);
     if (!placed) {
       /* first paint: be exactly where we belong, with no entrance move */
       placed = true;
