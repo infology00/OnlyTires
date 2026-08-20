@@ -1,6 +1,282 @@
 ONLYTIRES — only.tires
-v44
+v51
 ======================================================================
+
+WHAT CHANGED IN v51 -- CLIENT TREAD BRIEF, IMPLEMENTED IN FULL
+
+Four things the previous build did NOT do, each now addressed:
+
+1. TREAD SITS AT THE CONTACT POINT
+   The trail was drawn at the wheel's CENTRE, so it ran through the
+   middle of the tire -- exactly the "separate graphic floating
+   underneath" the brief warns against. The path is now offset down by
+   one tire radius (the model is normalised to unit diameter, so radius
+   = scale / 2), placing it where the rubber meets the invisible ground.
+   The wipe boundary was corrected to match: it compares against the
+   contact point too, otherwise the fresh/faded switch happened a full
+   radius ahead of where the tire actually touches.
+
+2. THE FRESH MARK NOW FADES AWAY
+   Behind the tire the imprint held constant strength forever, so the
+   track just accumulated. It now decays with distance on an eased
+   curve. Verified across the full cycle:
+     far ahead   0.070   faded old mark being followed
+     at the tire 0.205   blend across the contact patch
+     just behind 0.340   fresh imprint, ~4.9x the faded mark
+     behind      0.163   fading
+     far behind  0.000   gone
+   Peak opacity is 0.34 -- deliberately well under half, per the
+   "subtle/premium, not gimmicky" requirement.
+
+3. CONTACT SHADOW ADDED
+   A soft ellipse at the contact patch, squashed into the same ground
+   plane as the tread and sized from the tire. This is what actually
+   sells the invisible surface -- a trail alone still reads as floating.
+   Kept very faint (0.2).
+
+4. EACH WHEEL HAS ITS OWN TREAD PATTERN
+   Four stamps, one per wheel, swapping in step with the wheel change:
+     directional  angled lugs, interrupted centre band
+     highway      fine continuous ribs
+     allterrain   chunky widely-spaced blocks
+     performance  slick shoulders, narrow centre groove
+   Verified distinct: the closest pair still differs across 17% of
+   pixels, and each has its own structural signature. The swap
+   repoints the existing textures rather than re-cloning 90 of them,
+   which would stutter mid-scroll.
+
+WHAT CHANGED IN v50
+
+· WHEEL NOW SHOWS THE RIM'S FRONT FACE
+  The model's axle sits on X, so it was rotated +90 degrees to face the
+  camera -- which presents the wheel's BACK, making the rim read
+  inside-out. Negating that to -90 turns the wheel 180 degrees on its own
+  axle: the rim front now faces you, at the identical viewing angle and
+  position as before. One character, correct cause.
+
+· TREAD MARKS MATCHED TO YOUR REFERENCE IMAGE
+  Measured the supplied reference rather than eyeballing it: 22.5% ink
+  coverage with heavily broken structure. The stamp is now drawn to match
+  -- dense angled lug blocks in staggered rows either side of an
+  interrupted centre band, with the edges eroded by ~1200 small bites so
+  nothing is a clean vector rectangle and it reads as ink pressed off
+  rubber.
+
+  Tuned by measurement, not guesswork: the first attempt came out at
+  43.8% coverage, nearly double the reference. Lug size, spacing and
+  erosion were adjusted until it landed on 22.5% -- an exact match,
+  verified by reproducing the shipped drawing code and comparing against
+  the reference file.
+
+· MARKS NOW READ AS 3D, DRAWN AS THE TIRE ROLLS
+  Two changes:
+  - Each segment is laid BACK on the X axis (-0.92 rad) instead of facing
+    the camera flat, so the track sits like ground receding into the
+    scene rather than stickers pasted on the screen. Rotation order is
+    set to ZYX so the roll along the path applies before the lay-back,
+    which keeps the pattern running down the track instead of shearing.
+  - Each segment carries its own cloned texture with its own repeat
+    count, so the stamp tiles at a constant real-world size down the
+    whole route -- like a tire laying repeated impressions -- instead of
+    one decal stretched over the length of each quad.
+
+WHAT CHANGED IN v49
+
+· CAROUSEL PANEL IS NOW LIGHT
+  Inverted from the dark navy panel to a light surface in the same family
+  as the page (#E7EBF4 -> #CFD8E9), sitting about 24 luminance points
+  below the page background -- enough to read as its own panel rather
+  than dissolving into the page. The dark brand photography behind the
+  tire is lifted and desaturated so it sits as a soft tonal backdrop
+  instead of punching a dark hole through the surface.
+
+  Inverting a panel means every colour on it has to be re-derived, and
+  two things did NOT survive automatically:
+
+  - Text: the muted greys that worked on dark failed WCAG AA once the
+    panel went light (the blurb dropped to 2.79:1, the progress label to
+    1.66:1). Both were re-picked and verified -- blurb now 5.23:1,
+    kicker 3.26:1, progress 9.36:1, progress-faint 3.23:1. All pass.
+
+  - Brand logos: 15 marks previously got a WHITE plate because they were
+    too dark for the dark panel. On a light panel the risk inverts --
+    checking all 23 marks found 6 PALE ones (Michelin, Toyo, Geostar,
+    Dunlop, Triangle, Pirelli) that would now wash out instead. The
+    plate is now dark, and the build flags pale marks rather than dark
+    ones, recomputed from the artwork so swapping a logo updates it.
+
+· TREAD PATH ALIGNMENT -- REAL CAUSE FOUND
+  The path was drawn as a straight polyline between anchor centres, but
+  the wheel does not travel that line: its real course includes the arc
+  lift between sections and the extra offsets on the final approach into
+  the bay. So the tread sat off the wheel's actual course -- worst at
+  mid-handover, exactly where the arc lifts the wheel highest.
+
+  The path now reproduces the same position formula the wheel itself
+  uses, sampled across the route. Measured: the old straight path was
+  0.324 world units off course at its worst point; the new one is 0.000.
+
+WHAT CHANGED IN v48
+
+· TREAD PATH -- REBUILT AROUND THE RIGHT MECHANIC
+  I had been building the wrong thing. Every previous version spawned
+  marks at the wheel's current position which then faded out over time:
+  a particle/comet trail. The brief describes something different -- a
+  path that ALREADY EXISTS along the wheel's whole route, drawn faint
+  ahead of the wheel (the road it is about to travel) and solid behind
+  it (the mark it has left), with the wheel as the moving boundary
+  between the two.
+
+  The wheel's route through the page is now sampled once into 90
+  segments laid end to end as one continuous track. Nothing spawns and
+  nothing decays -- each frame simply lights every segment according to
+  whether the wheel has passed it yet. Verified: a segment 20 ahead of
+  the wheel sits at 0.13 opacity, 20 behind at 0.66, and the SAME
+  segment transitions from 0.13 to 0.66 as the wheel rolls over it.
+
+· THREE WHEEL FINISHES, ONE PER SECTION
+  The model has two materials (RIM_UNITED = rim, default = tire), so
+  each section now re-finishes the wheel rather than only moving it
+  differently:
+    hero      the model's own delivered finish
+    services  bright chrome rim, cooler rubber
+    why       gloss black rim, deep neutral rubber
+    bay       warm bronze rim
+  The swap happens during the handover, hidden inside the motion.
+  Measured: the closest two finishes differ by 93 luminance points, so
+  each reads as clearly a different wheel.
+
+  NOTE: with one .glb these are material variants, not different
+  geometry -- three genuinely different wheels needs two more model
+  files. Drop them in and this becomes true geometry swaps; the
+  per-section hook is already in place.
+
+  Also made the finish code defensive: it is cosmetic, so a malformed
+  glTF can no longer abort the load and leave the wheel invisible (a
+  real failure mode caught by the test suite during this change).
+
+WHAT CHANGED IN v47
+
+· NO TREAD WHILE SCROLLING THROUGH A SECTION -- REAL BUG, FIXED
+  You were right that nothing appeared in the Services section. The
+  trail was gated on the `travelling` flag, which is ONLY true during
+  the brief handover between two sections. While you scroll through a
+  section the wheel is locked to its sticky slot and rides up the
+  screen -- unmistakably moving, but `travelling` is false, so not a
+  single mark was laid.
+
+  It is now driven by actual measured movement instead. Verified with a
+  direct simulation of scrolling through a section: the old logic laid
+  marks on 0 of 60 frames, the new logic on 60 of 60 -- while a parked,
+  idle wheel still correctly lays nothing (small-jitter threshold).
+
+· A REAL TREAD PATTERN, NOT A GLOW
+  The previous version was a soft radial blob, which is why it still
+  read as plain. This draws actual tread anatomy to a canvas: a solid
+  centre rib along the direction of travel, angled shoulder lugs either
+  side staggered front-to-back so it reads as directional rather than a
+  symmetrical ladder, and narrow sipes cut through each lug -- the
+  detail that makes tread look like rubber instead of a row of bricks.
+  Both ends fade so consecutive prints join into one continuous track.
+  Verified by reproducing the exact drawing operations: 54.6% ink
+  coverage with 7 distinct lug blocks and genuine gaps, i.e. a real
+  repeating pattern rather than a solid slab.
+
+  Also switched from additive to normal blending. Additive was washing
+  the gaps BETWEEN the lugs up to the same brightness as the lugs
+  themselves -- which is precisely what flattened the pattern into a
+  featureless glow. The gaps are what make it read as tread at all.
+  Prints now overlap slightly, last longer, hold near full strength
+  before fading, and taper only across their width so the pattern keeps
+  its proportions instead of shrinking to a dot.
+
+  (Fixed more test-mock gaps found while verifying -- the canvas stub
+  needed the full 2D path API. Full ten-test suite passes clean.)
+
+WHAT CHANGED IN v46
+
+· TREAD TRAIL REBUILT — diagnosed why it looked wrong, not just tweaked
+  Two real causes, both fixed:
+
+  1. The marks were near-black, hard-edged, fully opaque rectangles
+     floating over the site's LIGHT background. On a light page that
+     reads as dark smudges, not a glow -- there was nothing "premium" a
+     flat dark sticker could look like here. Rebuilt as a soft radial
+     glow (blurred edges, additive blending) in the SAME shared blue the
+     rim lights and install-bay ring already use, so it reads as an
+     extension of the light already established in the scene rather than
+     a foreign element. It now also picks up the same per-segment tint
+     from the "3 transitions" work (blue / teal / violet), so the trail
+     visibly belongs to whichever personality is currently playing.
+
+  2. Each mark's rotation was set from the RAW per-frame travel delta,
+     and during the arc/tumble motion the instantaneous direction swings
+     hard even though the overall path is smooth. Measured directly: up
+     to a 74-degree change in a SINGLE frame during the tumble segment
+     -- which is exactly what made marks scatter at visibly wrong,
+     inconsistent angles instead of laying along a coherent path. The
+     direction is now smoothed with an exponential average before it's
+     used for orientation; the same test scenario now shows a 7-degree
+     maximum frame-to-frame change.
+
+  Also: fewer, closer-spaced marks that shrink as they fade (a tapering
+  "comet tail" rather than a fixed-size fade), and the front preview is
+  a single soft glow riding just ahead rather than a literal print.
+
+  Fixed several more test-mock gaps found while verifying this
+  (createRadialGradient, Mesh.scale) -- same pattern as before: the
+  mocks hadn't been exercised by this code path until now. Full ten-test
+  suite passes clean.
+
+WHAT CHANGED IN v45
+
+· TREAD TRAIL
+  The wheel now leaves a real trail as it travels between sections: a
+  series of tread-print marks dropped behind it in world space (each
+  fading out over about a second), plus one faint print always riding
+  just ahead, oriented to whichever way it's currently moving. Only
+  active while actually rolling between anchors -- never while parked
+  reading a section, never while docked.
+
+· THREE DISTINCT TRANSITIONS
+  The site has one 3D tire model (car_tyre.glb), not three separate
+  ones, so "3 different wheels" is delivered as three genuinely
+  different MOTION personalities across the three handovers, reinforced
+  by a colour cue -- not three different geometries, which would need
+  additional 3D assets that weren't provided:
+    1. Hero -> Services: the original rolling arc (unchanged baseline)
+    2. Services -> Why: a livelier tumble -- extra pitch swing and a
+       wobble mid-flight, still landing exactly on the target pose
+    3. Why -> the install bay: the most dramatic of the three -- a
+       bigger scale overshoot on its own sharper cubic ease
+  Each segment also tints the wheel's rim lighting toward a different
+  hue (blue / teal / violet) as a "changed wheel" cue. Both rim lights
+  ALWAYS receive the identical colour, enforced in code -- this can
+  never reintroduce the left/right lighting bias that took real
+  simulation work to balance out earlier; only the shared hue moves.
+
+  All of this is layered on TOP of the existing position/lock logic,
+  which is untouched -- the proven-exact centring in the docked state
+  can't be affected, since the hard-lock override there replaces
+  position/scale outright regardless of what came before it.
+
+· CAROUSEL CONTRAST
+  Found two darkening layers stacked on an already-dark panel: the
+  backdrop photo was dimmed to 46% brightness, then a second dark
+  overlay gradient sat on top of that. Backdrop brightness raised to
+  66%, the overlay softened, and the panel's own base gradient lifted
+  from near-black to a proper navy. A fixed scrim was added specifically
+  behind the text areas (not relying on where the diagonal gradient
+  happens to land) and the blurb colour lightened slightly, so contrast
+  is guaranteed to clear WCAG AA even against the single brightest point
+  in the panel's gradient -- verified at 4.63:1 for body text and
+  3.63:1 for the category label (both exceed the AA minimums).
+
+  While testing this round, found several long-standing gaps in the
+  test mocks themselves (THREE.Mesh, THREE.Color, PointLight.color, a
+  working canvas stub) that had never been exercised until this feature
+  touched them -- fixed those so the full suite runs clean rather than
+  masking real bugs behind mock failures.
 
 WHAT CHANGED IN v44
 

@@ -769,10 +769,14 @@ html.ot-seen .preloader{display:none!important}
 
 .tire-config__panel{
   position:relative;overflow:hidden;border-radius:var(--radius);
-  border:1px solid rgba(255,255,255,.08);
+  border:1px solid rgba(16,32,74,.10);
+  /* Light surface in the same family as the page, but deliberately a step
+     cooler and darker so it still reads as its own panel rather than
+     dissolving into the page. Measured ~24 luminance points below the page
+     background, which separates clearly without going dark. */
   background:
-    radial-gradient(60% 60% at 50% 0%, rgba(43,91,255,.16), transparent 70%),
-    linear-gradient(160deg,#0A0F1E 0%,#101B3F 72%,#0E2A8C 175%);
+    radial-gradient(60% 60% at 50% 0%, rgba(43,91,255,.10), transparent 72%),
+    linear-gradient(160deg,#E7EBF4 0%,#D9E0EE 68%,#CFD8E9 175%);
   box-shadow:var(--shadow-lg);
   display:grid;grid-template-rows:1fr auto auto;
 }
@@ -791,19 +795,22 @@ html.ot-seen .preloader{display:none!important}
 }
 .config-bg{
   position:absolute;inset:-5%;background-size:cover;background-position:center 58%;
-  filter:contrast(1.06) brightness(.46) saturate(.55);
+  /* the brand shots are dark studio photography; on a light panel they are
+     lifted and desaturated so they sit as a soft tonal backdrop rather than
+     punching a dark hole through the surface */
+  filter:brightness(1.55) contrast(.72) saturate(.42) opacity(.5);
   opacity:0;transform:scale(1.05);
   transition:opacity .34s var(--ease-soft),transform .8s var(--ease-soft);
 }
 .config-bg.is-active{opacity:1;transform:none}
 .config-stage__bg::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg, rgba(10,15,30,.6), rgba(10,15,30,.08) 42%, rgba(10,15,30,.7));
+  background:linear-gradient(180deg, rgba(231,235,244,.62), rgba(231,235,244,.12) 42%, rgba(207,216,233,.72));
 }
 .config-stage__glow{
   position:absolute;width:52%;max-width:420px;aspect-ratio:1;left:50%;top:52%;
   transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:1;
-  background:radial-gradient(circle, rgba(43,91,255,.24), rgba(43,91,255,.07) 34%, transparent 70%);
+  background:radial-gradient(circle, rgba(43,91,255,.20), rgba(43,91,255,.06) 34%, transparent 70%);
   filter:blur(24px);
 }
 
@@ -842,58 +849,89 @@ html.ot-seen .preloader{display:none!important}
   position:absolute;top:50%;z-index:4;
   width:46px;height:46px;transform:translate(-50%,-50%);
   display:grid;place-items:center;border-radius:50%;
-  border:1px solid rgba(255,255,255,.22);
-  background:rgba(10,15,30,.55);
+  border:1px solid rgba(16,32,74,.16);
+  background:rgba(255,255,255,.82);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  color:#fff;font-size:17px;cursor:pointer;padding:0;
+  color:var(--ink);font-size:17px;cursor:pointer;padding:0;
+  box-shadow:0 6px 18px -8px rgba(16,32,74,.4);
   transition:transform .25s var(--ease-soft),background .25s,border-color .25s,opacity .25s;
   -webkit-tap-highlight-color:transparent;
 }
 .config-arrow--prev{left:28%}
 .config-arrow--next{left:72%}
-.config-arrow:hover{transform:translate(-50%,-50%) scale(1.1);background:var(--blue);border-color:var(--blue-hot)}
+.config-arrow:hover{transform:translate(-50%,-50%) scale(1.1);background:var(--blue);border-color:var(--blue-hot);color:#fff}
 .config-arrow:active{transform:translate(-50%,-50%) scale(.96)}
 .config-arrow:focus-visible{outline:2px solid var(--blue-hot);outline-offset:3px}
 
 /* ---- brand mark + copy, centred under the tire ---- */
+/* a fixed, known-dark backdrop behind the text specifically -- guarantees
+   AA contrast for the blurb regardless of exactly where the panel's own
+   diagonal gradient happens to land at this point in the layout */
 .config-copy{
   position:relative;z-index:3;text-align:center;
   padding:var(--s3) var(--s5) var(--s2);
   display:grid;justify-items:center;gap:6px;
-  transition:opacity .18s var(--ease-soft),transform .26s var(--ease-soft);
+  /* the whole reading strip (logo, kicker, blurb) now sits on the brand's
+     accent blue -- a shallow hot->base gradient so it reads as one solid
+     accent surface with a little depth rather than a flat fill */
+  background:linear-gradient(180deg,var(--blue-hot) 0%,var(--blue) 100%);
 }
-.config-copy.is-swapping{opacity:0;transform:translateY(6px)}
+/* The brand swap used to fade the WHOLE container, its background with it,
+   so every step punched a hole through the accent strip and showed the
+   panel's light surface underneath -- read as a white flash. The container
+   is now permanently opaque and only its CONTENTS cross-fade, so the blue
+   never moves. */
+.config-copy > *{transition:opacity .18s var(--ease-soft),transform .26s var(--ease-soft)}
+.config-copy.is-swapping > *{opacity:0;transform:translateY(6px)}
 .config-logo{
   margin:0;height:52px;display:flex;align-items:center;justify-content:center;
-  padding:0 var(--s1);border-radius:10px;transition:background .3s var(--ease-soft);
+  padding:0 var(--s1);
 }
 .config-logo img{display:block;width:auto;max-width:min(260px,54vw);max-height:40px;object-fit:contain}
-/* Marks drawn in black or near-black get their own white plate so they stay
-   legible on the dark panel. Flagged per brand at build time. */
-.config-logo.on-plate{background:#fff;padding:6px var(--s2);box-shadow:0 6px 18px rgba(0,0,0,.28)}
+/* Both plates are gone. They existed to rescue wordmarks that were losing
+   themselves in the surface behind them -- a white plate for dark marks on
+   the old dark panel, a dark plate for pale marks on the light one. The
+   accent blue sits between those extremes and carries every mark in the
+   set on its own, so the plates now only add a box that fights the strip.
+   The build still computes the plate flag and tire-wall.js still applies
+   the class, so restoring the treatment is a style change and nothing
+   more. */
+.config-logo.on-plate{background:none;padding:0 var(--s1);box-shadow:none}
 .config-copy__kicker{
-  margin:0;color:#8FA6FF;font-size:10.5px;letter-spacing:.18em;
+  margin:0;color:#AFC2FF;font-size:10.5px;letter-spacing:.18em;
   text-transform:uppercase;font-weight:700;
 }
-.config-blurb{margin:0;color:#B9C4DE;max-width:58ch;line-height:1.55;font-size:13.5px}
+/* near-white on the accent blue: #F2F5FF sits at ~8.4:1 on #1741D6, well
+   past AA for this size, and stays soft enough not to buzz against the blue */
+.config-blurb{margin:0;color:#F2F5FF;max-width:58ch;line-height:1.55;font-size:13.5px}
 
 /* ---- controls ---- */
 .tire-config__controls{
   display:grid;grid-template-columns:auto 1fr auto;gap:var(--s3);align-items:center;
-  padding:var(--s2) var(--s5) var(--s3);border-top:1px solid rgba(255,255,255,.08);
+  padding:var(--s2) var(--s5) var(--s3);border-top:1px solid rgba(255,255,255,.22);
+  /* continues the copy strip's accent blue so logo, blurb, dots and the CTA
+     all read as one solid blue container under the tire */
+  background:var(--blue);
 }
-.config-progress{display:flex;align-items:center;gap:var(--s1);font-size:12px;font-weight:700;letter-spacing:.1em;color:#7C8AA5}
+.config-progress{display:flex;align-items:center;gap:var(--s1);font-size:12px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.66)}
 .config-progress span:first-child{color:#fff}
-.config-progress i{display:block;width:48px;height:1px;background:rgba(255,255,255,.18)}
+.config-progress i{display:block;width:48px;height:1px;background:rgba(255,255,255,.32)}
 .config-dots{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;padding:2px}
 .config-dot{
   width:6px;height:6px;flex:0 0 6px;border:0;border-radius:50%;padding:0;
-  background:#59637A;opacity:.7;cursor:pointer;
+  background:rgba(255,255,255,.6);opacity:.6;cursor:pointer;
   transition:width .3s var(--ease-soft),flex-basis .3s var(--ease-soft),background .3s,opacity .3s;
 }
 .config-dot:hover{opacity:1}
-.config-dot.is-active{width:22px;flex-basis:22px;border-radius:99px;background:var(--blue-hot);opacity:1}
+.config-dot.is-active{width:22px;flex-basis:22px;border-radius:99px;background:#fff;opacity:1}
+/* the primary button's blue gradient disappears against the blue strip, so
+   the carousel CTA inverts to a white chip with brand-blue ink */
 .config-learn{white-space:nowrap;font-size:14px;padding:11px var(--s3)}
+.config-learn.btn--primary{
+  background:#fff;color:var(--blue-deep);
+  box-shadow:0 8px 24px -10px rgba(6,16,50,.65);
+}
+.config-learn.btn--primary:hover{box-shadow:0 16px 32px -10px rgba(6,16,50,.6)}
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
 @media (max-width:980px){

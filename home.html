@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnlyTires — Tire Shop in Pembroke Pines, FL | New Tires, Installation &amp; Full Tire Service</title>
+<meta name="description" content="OnlyTires is Pembroke Pines' go-to tire shop for new tires, installation, rotation, balancing, alignment, TPMS and flat repair. Get a fast quote — 754-755-4554.">
+<script>(function(){var on=false;try{var q=location.search;if(q.indexOf('preview=1')>-1){sessionStorage.setItem('ot-preview','1');}else if(q.indexOf('preview=0')>-1){sessionStorage.removeItem('ot-preview');}on=sessionStorage.getItem('ot-preview')==='1';}catch(e){on=false;}var here=(location.pathname.split("/").pop()||"index.html");var cover=(here==="index.html");if(cover&&on){location.replace("home.html"+location.search);}else if(!cover&&!on){location.replace("index.html");}})();</script>
+<link rel="icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:ital,wght@0,700;0,800;1,700;1,800&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>/* Runs before first paint. Two independent signals mean 'this is an   in-site navigation, skip the preloader': a #s marker on the URL   (primary — survives even when sessionStorage is blocked or partitioned,   which is common on file:// and is why the preloader kept reappearing   when testing by double-clicking the page), and an 'ot-internal-nav'   sessionStorage flag as a second check for normal hosting. Either one   is enough. The #s marker is stripped from the address bar immediately   via replaceState, so a genuine reload of the resulting clean URL still   shows the preloader as expected -- it only ever fires once per visit.   As a second layer, an EXPLICIT reload (F5 / the reload button) always   shows the preloader, overriding both signals -- so even a stray #s   or leftover storage flag surviving somehow can never suppress it on   a reload the visitor deliberately asked for.   Scroll restoration is turned off too: reloading half way down a page   used to drop you back at that same spot, which fought the intro. */(function(){var isReload=false;try{var nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];isReload=nav?nav.type==='reload':(performance.navigation&&performance.navigation.type===1);}catch(e){}var byHash=false,byStore=false;if(!isReload){try{byHash=location.hash==='#s';}catch(e){}try{byStore=sessionStorage.getItem('ot-internal-nav')==='1';}catch(e){}}if(byHash||byStore){try{document.documentElement.className+=' ot-seen';}catch(e){}}try{sessionStorage.removeItem('ot-internal-nav');}catch(e){}if(location.hash==='#s'){try{if(history.replaceState){history.replaceState(null,'',location.pathname+location.search);}}catch(e){}}try{if('scrollRestoration' in history){history.scrollRestoration='manual';}}catch(e){}})();</script>
+<link rel="stylesheet" href="css/style.css">
+
+<link rel="preload" href="assets/car_tyre.glb" as="fetch" crossorigin="anonymous">
+<link rel="preload" href="assets/brand-tires/michelin.webp" as="image">
+<link rel="prefetch" href="contact.html">
+</head>
+<body>
+<div class="preloader" aria-label="Loading OnlyTires">
+  <div class="preloader-inner">
+    <div class="preloader-brand"><img src="assets/logo.webp" alt="OnlyTires"></div>
+    <div class="preloader-status">Warming up</div>
+    <div class="preloader-pct">0%</div>
+    <div class="preloader-bar"><i></i></div>
+    <div class="preloader-enter">
+      <button class="btn btn--primary btn--lg" id="enter-sound">Enter With Sound <span class="btn-arrow">→</span></button>
+      <button class="preloader-quiet" id="enter-quiet">Enter quietly</button>
+    </div>
+  </div>
+</div>
+<div class="page-veil is-covered" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="scroll-progress" aria-hidden="true"></div>
+<div id="gl-stage" aria-hidden="true"></div>
+<header class="site-header">
+  <div class="topbar">
+    <span>20926 Sheridan St, Pembroke Pines, FL</span>
+    <span class="dot">◆</span>
+    <a href="tel:7547554554">754-755-4554</a>
+    <span class="dot">◆</span>
+    <span>Mon–Fri <em>8AM – 6PM</em></span>
+  </div>
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="index.html" aria-label="OnlyTires home">
+      <img src="assets/logo.webp" alt="OnlyTires">
+    </a>
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a href="index.html" class="is-active">Home</a></li>
+      <li><a href="tires.html">Tires</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="fleet.html">Fleet / Commercial</a></li>
+      <li><a href="about.html">About</a></li>
+      <li class="nav-cta"><a class="btn btn--primary" href="contact.html">Get a Quote</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero vsection">
+  <div class="hero-speedlines" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">Pembroke Pines · FL</span>
+        <h1>
+          <span data-split>New Tires,</span>
+          <span data-split>Done Right —</span>
+          <span data-split class="accent">Fast.</span>
+        </h1>
+        <p class="lead">OnlyTires is Pembroke Pines' go-to tire shop for new tires, installation, and full tire service. Get a fast quote and get back on the road.</p>
+        <div class="hero-actions">
+          <a class="btn btn--primary btn--lg" href="#quote">Get a Quote <span class="btn-arrow">→</span></a>
+          <a class="btn btn--ghost btn--lg" href="tel:7547554554">Call 754-755-4554</a>
+        </div>
+        <div class="hero-meta">
+          <span><strong>All major brands</strong> · every size</span>
+          <span><strong>Same-day</strong> installation available</span>
+        </div>
+      </div>
+      <div class="tire-stage" id="anchor-hero">
+        <div class="drag-zone" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trustbar" aria-label="Why drivers trust OnlyTires">
+  <div class="trustbar-track">
+    <span class="trustbar-item">All Major Brands</span>
+    <span class="trustbar-item">Fast Installation</span>
+    <span class="trustbar-item">Fair Pricing</span>
+    <span class="trustbar-item">Local &amp; Trusted</span>
+    <span class="trustbar-item">Fleet Welcome</span>
+  </div>
+</div>
+
+<!-- WHAT WE DO -->
+<section class="vsection">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">What we do</span>
+      <h2>Tires First. <span class="accent">Service Supports.</span></h2>
+      <p class="lead">Follow the wheel — it rolls with you all the way down to the install bay.</p>
+    </div>
+    <div class="do-grid">
+      <!-- the wheel parks here, level with the first card, and holds -->
+      <div class="do-rail"><div class="do-rail__slot" id="anchor-services" aria-hidden="true"></div></div>
+      <div class="tiles tiles--stack">
+        <a class="tile reveal" href="tires.html">
+          <span class="tile-num">01</span>
+          <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="9"/><path d="M24 6v9M24 33v9M6 24h9M33 24h9"/></svg>
+          <h3>New Tires &amp; Installation</h3>
+          <p>All major brands, every size — mounted, balanced, and installed fast, at a fair price.</p>
+          <span class="tile-link">See tires</span>
+        </a>
+        <a class="tile reveal" href="services.html">
+          <span class="tile-num">02</span>
+          <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M8 24a16 16 0 1 1 4.7 11.3"/><path d="M8 35v-8h8"/><circle cx="24" cy="24" r="4"/></svg>
+          <h3>Rotation · Balance · Alignment</h3>
+          <p>Even wear, a smooth ride, and straight tracking — the service that makes tires last.</p>
+          <span class="tile-link">See services</span>
+        </a>
+        <a class="tile reveal" href="services.html">
+          <span class="tile-num">03</span>
+          <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="24" cy="24" r="16"/><path d="M24 16v8l6 4"/><path d="M40 10l-4 4M8 10l4 4"/></svg>
+          <h3>TPMS &amp; Flat Repair</h3>
+          <p>Warning light on? Slow leak? We diagnose sensors and repair flats — quick and done right.</p>
+          <span class="tile-link">See services</span>
+        </a>
+        <a class="tile reveal" href="fleet.html">
+          <span class="tile-num">04</span>
+          <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M4 32V16h24v16"/><path d="M28 20h10l6 7v5h-4"/><circle cx="12" cy="34" r="4"/><circle cx="36" cy="34" r="4"/><path d="M16 34h16"/></svg>
+          <h3>Fleet / Commercial</h3>
+          <p>Tires and turnaround built for work trucks and fleets that can't afford downtime.</p>
+          <span class="tile-link">Fleet service</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="vsection vsection--alt">
+  <div class="wrap">
+    <div class="split">
+      <div class="reveal">
+        <span class="eyebrow">Why OnlyTires</span>
+        <h2>Fair Prices. Fast Work. <span class="accent">Straight Answers.</span></h2>
+        <p class="lead">We get you the right tires for how you actually drive — no upsell games — and get you back on the road quick.</p>
+        <div class="stats">
+          <div class="stat"><b>Fast</b><span>Same-day<br>installs</span></div>
+          <div class="stat"><b>Fair</b><span>Upfront<br>pricing</span></div>
+          <div class="stat"><b>Local</b><span>Pembroke<br>Pines</span></div>
+        </div>
+        <ul class="checklist">
+          <li><span class="check">✓</span><span>Fair, upfront pricing<small>The price we quote is the price you pay — no surprise add-ons.</small></span></li>
+          <li><span class="check">✓</span><span>Fast installation and turnaround<small>In, installed, and back on the road — often the same day.</small></span></li>
+          <li><span class="check">✓</span><span>All major brands, every size<small>Passenger, truck/SUV, and commercial — matched to your driving.</small></span></li>
+        </ul>
+      </div>
+      <div class="do-rail"><div class="do-rail__slot" id="anchor-why" aria-hidden="true"></div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- DOCK -->
+<section class="vsection">
+  <div class="wrap">
+    <div class="dock-head reveal">
+      <span class="eyebrow">The install bay</span>
+      <h2>Every Wheel Ends Up <span class="accent">Exactly Where It Belongs.</span></h2>
+      <p class="lead" style="margin:var(--s2) auto 0">Mounted, balanced, torqued to spec — precision fit on every single install.</p>
+    </div>
+    <div class="dock-card reveal">
+      <div class="dock-specs">
+        <div class="dock-spec"><span>Step 01</span><b>Mount</b><p>New tire seated on your wheel with pro equipment.</p></div>
+        <div class="dock-spec"><span>Step 02</span><b>Balance</b><p>Computer-balanced so the ride stays glass-smooth.</p></div>
+      </div>
+      <div class="dock-slot" id="dock-slot"><span class="slot-label">Install Bay</span></div>
+      <div class="dock-specs right">
+        <div class="dock-spec"><span>Step 03</span><b>Torque</b><p>Every lug torqued to factory spec — never guessed.</p></div>
+        <div class="dock-spec"><span>Step 04</span><b>Road-Ready</b><p>TPMS checked, pressures set, back on the road.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE TIRE WALL — brand carousel -->
+<section class="vsection tire-config" id="tire-configurator" data-tire-configurator aria-labelledby="config-title">
+  <div class="tire-config__ambient" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="tire-config__head reveal">
+      <div>
+        <p class="eyebrow">The tire wall</p>
+        <h2 id="config-title">Find your fit. <span class="accent">Spin the brands.</span></h2>
+      </div>
+      <p class="tire-config__lede">Explore a premium mix of road, performance, SUV and all-terrain tires. Drag to spin the tire in focus, then step through the brands we fit.</p>
+    </div>
+
+    <div class="tire-config__panel reveal">
+      <div class="tire-config__viewer" tabindex="0" aria-label="Tire brand carousel. Use the arrows or keyboard arrow keys to change brand.">
+        <div class="config-stage" data-tire-stage data-index="0">
+          <div class="config-stage__bg" aria-hidden="true">
+            <div class="config-bg is-active" data-tire-bg></div>
+            <div class="config-bg" data-tire-bg></div>
+          </div>
+          <div class="config-stage__glow" aria-hidden="true"></div>
+
+          <!-- three tires: the one in focus, and its neighbours held smaller -->
+          <div class="config-rack" aria-hidden="true">
+            <img class="config-rack__side config-rack__side--prev" data-tire-side="prev" src="" alt="">
+            <div class="config-focus">
+              <img class="config-focus__img" data-tire-focus src="" alt="">
+            </div>
+            <img class="config-rack__side config-rack__side--next" data-tire-side="next" src="" alt="">
+          </div>
+
+          <!-- arrows sit exactly midway between the focus tire and each side tire -->
+          <button class="config-arrow config-arrow--prev" type="button" data-tire-prev aria-label="Previous tire brand">
+            <span aria-hidden="true">←</span>
+          </button>
+          <button class="config-arrow config-arrow--next" type="button" data-tire-next aria-label="Next tire brand">
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- brand mark and copy, centred directly under the tire -->
+      <div class="config-copy">
+        <p class="config-logo" id="configLogo"><img id="configLogoImg" src="" alt="" decoding="async"></p>
+        <h3 class="sr" id="configBrand">Michelin</h3>
+        <p class="config-copy__kicker" id="configRegion">PERFORMANCE &amp; EVERYDAY MOBILITY</p>
+        <p class="config-blurb" id="configBlurb">A global benchmark for grip, comfort and long-mile confidence, with a broad range spanning everyday cars to performance and EV applications.</p>
+      </div>
+
+      <div class="tire-config__controls">
+        <div class="config-progress" aria-hidden="true"><span id="configProgress">01</span><i></i><span>23</span></div>
+        <div class="config-dots" id="configDots" role="tablist" aria-label="Tire brands"></div>
+        <a class="btn btn--primary config-learn" id="configLearn" href="https://www.michelinman.com/" target="_blank" rel="noopener noreferrer">Learn more <span class="btn-arrow">↗</span></a>
+      </div>
+      <p class="sr" aria-live="polite" data-tire-live></p>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE — revealed only once the wheel is seated -->
+<section class="vsection vsection--alt after-dock" id="quote" style="padding-top:var(--s16)">
+  <div class="wrap">
+    <div class="quote-panel">
+      <div class="quote-side">
+        <span class="eyebrow" style="color:#8FA6FF">Fast · Fair · No games</span>
+        <h2>Get a Quote</h2>
+        <p>Tell us your vehicle and tire size — or just snap a photo of your current tire — and we'll get you a fast, fair quote.</p>
+        <ul>
+          <li>Reply fast — usually the same day</li>
+          <li>Straight pricing, no upsell games</li>
+          <li>A photo of your tire works too</li>
+        </ul>
+        <div class="tread" aria-hidden="true"></div>
+      </div>
+      <form class="quote-form" data-quote-form>
+        <div class="form-success" role="status">✓ Sent! We'll get you a fast, fair quote and get you rolling.</div>
+        <div class="form-row">
+          <div class="field"><label for="q-name">Name <b>*</b></label><input id="q-name" name="name" type="text" required autocomplete="name"></div>
+          <div class="field"><label for="q-phone">Phone <b>*</b></label><input id="q-phone" name="phone" type="tel" required autocomplete="tel"></div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="q-size">Tire size</label>
+            <select id="q-size" name="tire_size">
+              <option value="">Select size…</option>
+              <option>185/65R15</option>
+              <option>195/65R15</option>
+              <option>205/55R16</option>
+              <option>205/65R16</option>
+              <option>215/55R17</option>
+              <option>215/60R16</option>
+              <option>215/65R17</option>
+              <option>225/45R17</option>
+              <option>225/50R17</option>
+              <option>225/60R17</option>
+              <option>225/65R17</option>
+              <option>235/45R18</option>
+              <option>235/55R18</option>
+              <option>235/60R18</option>
+              <option>235/65R17</option>
+              <option>245/40R18</option>
+              <option>245/45R18</option>
+              <option>245/60R18</option>
+              <option>245/70R17</option>
+              <option>255/50R19</option>
+              <option>255/55R18</option>
+              <option>255/60R18</option>
+              <option>265/60R18</option>
+              <option>265/65R17</option>
+              <option>265/70R16</option>
+              <option>265/70R17</option>
+              <option>275/55R20</option>
+              <option>275/60R20</option>
+              <option>275/65R18</option>
+              <option>285/45R22</option>
+              <option>285/70R17</option>
+              <option>305/35R24</option>
+              <option>LT265/75R16</option>
+              <option>LT285/75R16</option>
+              <option>Not sure / check my tire</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="q-year">Year</label>
+            <select id="q-year" name="year">
+              <option value="">Select year…</option>
+              <option>2026</option>
+              <option>2025</option>
+              <option>2024</option>
+              <option>2023</option>
+              <option>2022</option>
+              <option>2021</option>
+              <option>2020</option>
+              <option>2019</option>
+              <option>2018</option>
+              <option>2017</option>
+              <option>2016</option>
+              <option>2015</option>
+              <option>2014</option>
+              <option>2013</option>
+              <option>2012</option>
+              <option>2011</option>
+              <option>2010</option>
+              <option>2009</option>
+              <option>2008</option>
+              <option>2007</option>
+              <option>2006</option>
+              <option>2005</option>
+              <option>2004</option>
+              <option>2003</option>
+              <option>2002</option>
+              <option>2001</option>
+              <option>2000</option>
+              <option>1999</option>
+              <option>1998</option>
+              <option>1997</option>
+              <option>1996</option>
+              <option>1995</option>
+              <option>Older than 1995</option>
+            </select>
+          </div>
+          <div class="field field--full">
+            <label for="q-model">Car make &amp; model</label>
+            <input id="q-model" name="model" type="text" placeholder="e.g. Toyota Tacoma SR5">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="q-need">What do you need? <b>*</b></label>
+            <select id="q-need" name="need" required>
+              <option value="">Select…</option>
+              <option>New tires</option>
+              <option>Rotation / balance</option>
+              <option>Alignment</option>
+              <option>TPMS</option>
+              <option>Flat repair</option>
+              <option>General service</option>
+              <option>Fleet</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="q-when">Preferred day/time</label>
+            <input id="q-when" name="when" type="text" placeholder="e.g. Saturday morning">
+          </div>
+        </div>
+        <div class="field field--file">
+          <label for="q-photo">Photo of your tire (optional)</label>
+          <label class="filedrop" for="q-photo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v13"/></svg>
+            <span class="filedrop-text">
+              <b>Upload a photo</b>
+              <small>Drag &amp; drop, or tap to browse — the sidewall works best</small>
+            </span>
+            <input id="q-photo" name="photo" type="file" accept="image/*">
+          </label>
+        </div>
+        <div class="field"><label for="q-msg">Message</label><textarea id="q-msg" name="message" placeholder="Anything else we should know?"></textarea></div>
+        <button class="btn btn--primary btn--lg" type="submit">Get My Fast Quote <span class="btn-arrow">→</span></button>
+        <p class="form-note">Only name and phone are required. We'll text or call you back fast.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- HOOS -->
+<section class="vsection">
+  <div class="wrap">
+    <div class="hoos-card reveal">
+      <div>
+        <span class="hoos-badge">Our sister shop · Same location</span>
+        <h2>Custom &amp; Performance? That's Hoos Garage.</h2>
+        <p>Looking for custom wheels or performance work? Our sister shop, Hoos Garage — right here at the same location — handles full custom and performance builds.</p>
+        <p style="margin-top:var(--s3)"><a class="btn btn--ghost" href="https://hoosgarage.com" target="_blank" rel="noopener">Visit Hoos Garage <span class="btn-arrow">→</span></a></p>
+      </div>
+      <div class="hoos-art" aria-hidden="true"><span class="wrench">🔧</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION -->
+<section class="vsection vsection--alt" id="location">
+  <div class="wrap">
+    <div class="section-head reveal" style="margin-bottom:var(--s4)">
+      <span class="eyebrow">Find us</span>
+      <h2>Location &amp; Hours</h2>
+    </div>
+    <div class="loc-grid reveal">
+      <div class="loc-card">
+        <div class="loc-item"><b>Address</b><p>20926 Sheridan Street<br>Pembroke Pines, FL 33332</p></div>
+        <div class="loc-item"><b>Phone</b><a href="tel:7547554554">754-755-4554</a></div>
+        <div class="loc-item"><b>Hours</b><p><span class="badge-open" data-hours>Mon–Fri · 8AM – 6PM</span><br><small style="color:var(--ink-faint)">Saturday &amp; Sunday — call to confirm.</small></p></div>
+        <a class="btn btn--primary" href="https://www.google.com/maps/dir/?api=1&destination=20926+Sheridan+Street,+Pembroke+Pines,+FL+33332" target="_blank" rel="noopener">Get Directions <span class="btn-arrow">→</span></a>
+      </div>
+      <div class="loc-map">
+        <iframe title="Map to OnlyTires" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q=20926+Sheridan+Street,+Pembroke+Pines,+FL+33332&output=embed"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<div class="tread" aria-hidden="true"></div>
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="assets/logo.webp" alt="OnlyTires">
+      <p>Local tire shop — sales, installation, and full tire service. Tires first, service supports.</p>
+    </div>
+    <div>
+      <h4>Pages</h4>
+      <ul>
+        <li><a href="tires.html">Tires</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="fleet.html">Fleet / Commercial</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact / Get a Quote</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Visit</h4>
+      <ul>
+        <li>20926 Sheridan Street</li>
+        <li>Pembroke Pines, FL 33332</li>
+        <li><a href="tel:7547554554">754-755-4554</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>More</h4>
+      <ul>
+        <li><a href="https://hoosgarage.com" target="_blank" rel="noopener">Hoos Garage — Custom &amp; Performance</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Use</a></li>
+        <li><a href="#">Leave us a review</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-cta-line">
+    <div class="footer-bottom">
+      <span>© <span data-year></span> OnlyTires LLC · An Ionic Group company</span>
+      <span>Custom &amp; performance builds → <a href="https://hoosgarage.com" target="_blank" rel="noopener">Hoos Garage</a> (same location)</span>
+    </div>
+  </div>
+</footer>
+<div class="mobile-bar">
+  <a class="call" href="tel:7547554554">Call Now</a>
+  <a class="quote" href="contact.html" data-instant>Get a Quote</a>
+</div>
+<button class="sound-toggle" aria-label="Toggle sound"><i></i><i></i><i></i><i></i></button>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js" defer></script>
+<script src="js/audio.js" defer></script>
+<script src="js/fx.js" defer></script>
+<script src="js/smooth-scroll.js" defer></script>
+<script>window.__OT_LOGO_PLATE__=["dunlop", "geostar", "michelin", "pirelli", "toyo", "triangle"];window.__OT_BRAND_LOGOS__={"bfgoodrich": "assets/brands/bfgoodrich.webp", "bridgestone": "assets/brands/bridgestone.webp", "continental": "assets/brands/continental.webp", "cooper": "assets/brands/cooper.webp", "dunlop": "assets/brands/dunlop.webp", "falken": "assets/brands/falken.webp", "firestone": "assets/brands/firestone.webp", "general": "assets/brands/general.webp", "geostar": "assets/brands/geostar.webp", "goodyear": "assets/brands/goodyear.webp", "hankook": "assets/brands/hankook.webp", "kelly": "assets/brands/kelly.webp", "kumho": "assets/brands/kumho.webp", "michelin": "assets/brands/michelin.webp", "milestar": "assets/brands/milestar.webp", "nankang": "assets/brands/nankang.webp", "nitto": "assets/brands/nitto.webp", "pirelli": "assets/brands/pirelli.webp", "sumitomo": "assets/brands/sumitomo.webp", "toyo": "assets/brands/toyo.webp", "triangle": "assets/brands/triangle.webp", "uniroyal": "assets/brands/uniroyal.webp", "yokohama": "assets/brands/yokohama.webp"};window.__OT_BRAND_BGS__={"bfgoodrich": "assets/brand-bg/bfgoodrich.webp", "bridgestone": "assets/brand-bg/bridgestone.webp", "continental": "assets/brand-bg/continental.webp", "cooper": "assets/brand-bg/cooper.webp", "dunlop": "assets/brand-bg/dunlop.webp", "falken": "assets/brand-bg/falken.webp", "firestone": "assets/brand-bg/firestone.webp", "general": "assets/brand-bg/general.webp", "geostar": "assets/brand-bg/geostar.webp", "goodyear": "assets/brand-bg/goodyear.webp", "hankook": "assets/brand-bg/hankook.webp", "kelly": "assets/brand-bg/kelly.webp", "kumho": "assets/brand-bg/kumho.webp", "michelin": "assets/brand-bg/michelin.webp", "milestar": "assets/brand-bg/milestar.webp", "nankang": "assets/brand-bg/nankang.webp", "nitto": "assets/brand-bg/nitto.webp", "pirelli": "assets/brand-bg/pirelli.webp", "race-track": "assets/brand-bg/race-track.webp", "sumitomo": "assets/brand-bg/sumitomo.webp", "toyo": "assets/brand-bg/toyo.webp", "triangle": "assets/brand-bg/triangle.webp", "uniroyal": "assets/brand-bg/uniroyal.webp", "yokohama": "assets/brand-bg/yokohama.webp"};window.__OT_BRAND_TIRES__={"bfgoodrich": "assets/brand-tires/bfgoodrich.webp", "bridgestone": "assets/brand-tires/bridgestone.webp", "continental": "assets/brand-tires/continental.webp", "cooper": "assets/brand-tires/cooper.webp", "dunlop": "assets/brand-tires/dunlop.webp", "falken": "assets/brand-tires/falken.webp", "firestone": "assets/brand-tires/firestone.webp", "general": "assets/brand-tires/general.webp", "geostar": "assets/brand-tires/geostar.webp", "goodyear": "assets/brand-tires/goodyear.webp", "hankook": "assets/brand-tires/hankook.webp", "kelly": "assets/brand-tires/kelly.webp", "kumho": "assets/brand-tires/kumho.webp", "michelin": "assets/brand-tires/michelin.webp", "milestar": "assets/brand-tires/milestar.webp", "nankang": "assets/brand-tires/nankang.webp", "nitto": "assets/brand-tires/nitto.webp", "pirelli": "assets/brand-tires/pirelli.webp", "sumitomo": "assets/brand-tires/sumitomo.webp", "toyo": "assets/brand-tires/toyo.webp", "triangle": "assets/brand-tires/triangle.webp", "uniroyal": "assets/brand-tires/uniroyal.webp", "yokohama": "assets/brand-tires/yokohama.webp"};window.__OT_TIRE_FALLBACK__={"front": "assets/brand-tires/bfgoodrich.webp", "angle": "assets/brand-tires/bfgoodrich.webp"};</script>
+<script src="js/tire-wall.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js" defer></script>
+<script src="js/experience.js" defer></script>
+</body>
+</html>
