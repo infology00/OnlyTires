@@ -149,23 +149,42 @@
      behind an arrival that will not happen */
   if (matchMedia('(max-width: 760px)').matches) unlockAfterDock();
 
+  /* The logo swap is gone. It used to replace the 3D wheel with a static
+     OnlyTires logo whenever anything went wrong -- but it also fired for
+     prefers-reduced-motion, and on a WebGL context loss, which is why the
+     wheel would sometimes just turn into the logo mid-session for no
+     apparent reason.
+
+     Now the canvas is always kept. If the model genuinely cannot be built
+     this simply unlocks the rest of the page and leaves the stage empty
+     rather than substituting a different graphic. */
   function fallback() {
-    if (heroStage) heroStage.innerHTML = '<img class="tire-fallback" src="__LOGO_SRC__" alt="OnlyTires performance tire">';
-    if (stageWrap) stageWrap.style.display = 'none';
     unlockAfterDock();
     pipelineDone = true;
     tryReady();
   }
 
-  if (reduce || !stageWrap || typeof THREE === 'undefined' ||
+  /* reduced-motion no longer disables the wheel -- the model still loads
+     and is shown, it simply is not animated. Only a genuinely missing
+     WebGL/Three.js stack stops it now. */
+  if (!stageWrap || typeof THREE === 'undefined' ||
       typeof THREE.GLTFLoader === 'undefined') { fallback(); return; }
 
   var renderer;
-  try { renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true }); }
+  try { renderer = new THREE.WebGLRenderer({
+      antialias: innerWidth >= 760,      /* phones: skip MSAA, it is costly */
+      alpha: true,
+      powerPreference: 'high-performance',
+      stencil: false,                    /* unused, so do not allocate it */
+      depth: true
+    }); }
   catch (e) { fallback(); return; }
   /* phones gain nothing visible from a 3x buffer but pay for it in heat and
      frame time, so cap lower on small screens */
-  renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 760 ? 1.6 : 2));
+  /* A 2x buffer means four times the pixels to shade. For a single dark
+     tire the difference against 1.5x is barely visible, but the frame cost
+     is not -- this is the cheapest large win available here. */
+  renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 760 ? 1.25 : 1.5));
   renderer.outputEncoding = THREE.sRGBEncoding;
   stageWrap.appendChild(renderer.domElement);
 
@@ -424,8 +443,15 @@
   treadTex.wrapS = THREE.RepeatWrapping;
   treadTex.wrapT = THREE.ClampToEdgeWrapping;
 
-  var PATH_SEGMENTS = 90;
-  var pathPool = [], pathPts = null;
+  /* 56 rather than 90: each quad is a separate mesh transformed and drawn
+   every frame, and they overlap enough that the track is still continuous.
+   34 fewer draw calls per frame is a real saving on weaker GPUs. */
+/* 36 rather than 56. Every segment is a separate transparent mesh, so it
+   costs a draw call and a texture bind each frame. The quads overlap by
+   3%, so the track still reads as continuous -- 20 fewer draw calls per
+   frame is a real saving on integrated graphics. */
+var PATH_SEGMENTS = 36;
+  var pathPool = [], pathPts = null, treadTick = 0;
 
   /* --- the mark is sized FROM the tire, not fixed ---------------------
      The old quads were a constant 0.30 world units across the track no
@@ -535,11 +561,15 @@
   shadowMesh.visible = false;
   scene.add(shadowMesh);
 
-  var AHEAD_OPACITY  = 0.07;   /* faded old mark the tire is following */
-  var BEHIND_OPACITY = 0.38;   /* fresh imprint just laid down -- nudged up
-                                  now the mark spans the full tread width,
-                                  so it reads as deliberate, not residue */
-  var FADE_SEGMENTS  = 26;     /* how far back the fresh mark takes to fade */
+  /* Raised for prominence. The fresh imprint went 0.38 -> 0.52 (+37%),
+     and the faded mark ahead 0.07 -> 0.10 so it lifts with it rather than
+     being left behind and losing the lead-in. FADE_SEGMENTS stretched too,
+     so the darker mark stays readable further back instead of decaying at
+     the old rate from a higher peak -- otherwise raising the peak alone
+     would just make the fade look steeper. */
+  var AHEAD_OPACITY  = 0.10;   /* faded old mark the tire is following */
+  var BEHIND_OPACITY = 0.52;   /* fresh imprint just laid down */
+  var FADE_SEGMENTS  = 32;     /* how far back the fresh mark takes to fade */
 
   /* Build the route once per layout.
 
@@ -635,7 +665,12 @@
        points to work with, and the extra samples cost only arithmetic
        now that the rects are cached */
     var segs = keys.length - 1;
-    var DENSE = PATH_SEGMENTS * 4;
+    /* Sampled 1:1 with the quad pool rather than 4x. The 4x oversample
+       existed to give the corner-rounding pass more points to work with,
+       but at 4x it cost 360 samples plus two smoothing passes over all of
+       them, every frame. At 1x the rounding still softens the corner
+       perfectly well and the whole rebuild costs a quarter as much. */
+    var DENSE = PATH_SEGMENTS;
     var perSeg = Math.floor(DENSE / segs);
     var dense = [];
     for (var s = 0; s < segs; s++) {
@@ -668,6 +703,14 @@
         r: a0.r + (b0.r - a0.r) * ft
       });
     }
+    /* Kept in VIEWPORT space and rebuilt each frame.
+
+       A previous version cached this in document space and applied the
+       scroll as an offset, which was much cheaper -- but wrong: the
+       services anchor is position:sticky, so its document position moves
+       continuously while you scroll through that section. The cached route
+       drifted sideways away from the wheel. Correctness wins; the cost is
+       paid back below by sampling far less. */
     pathPts = pts.length > 1 ? pts : null;
   }
 
@@ -793,7 +836,12 @@
         k = BEHIND_OPACITY * decay * decay;        /* eased, so it thins out gently */
       }
       slot.mat.opacity = k;
-      slot.mat.color.copy(rimTint);
+      /* colour only changes on a wheel swap, but this ran for every quad
+         every frame -- 56 needless material uploads per frame */
+      if (slot.tintHex !== rimTint.getHex()) {
+        slot.mat.color.copy(rimTint);
+        slot.tintHex = rimTint.getHex();
+      }
     }
   }
 
@@ -977,15 +1025,36 @@
   });
 
   function worldPerPx(){ return (2*Math.tan(FOV*Math.PI/360)*CAMZ)/viewSize().h; }
+  /* ------------------------------------------------------------------
+     PER-FRAME RECT CACHE
+
+     getBoundingClientRect forces the browser to flush pending style and
+     layout work before it can answer. The frame loop was calling it about
+     a dozen times AND interleaving those reads with DOM writes (the
+     wheel's transform, class toggles, CSS variables), so the browser had
+     to recompute layout repeatedly within a single frame -- classic
+     layout thrashing, and exactly why it turned choppy while the wheel
+     was travelling.
+
+     Every element is now measured at most ONCE per frame and shared. The
+     cache is cleared at the top of the loop.
+     ------------------------------------------------------------------ */
+  var _rects = new Map();
+  function rectOf(el){
+    var r = _rects.get(el);
+    if (r === undefined) { r = el.getBoundingClientRect(); _rects.set(el, r); }
+    return r;
+  }
+
   function elWorld(el){
-    var r = el.getBoundingClientRect(), w = worldPerPx();
+    var r = rectOf(el), w = worldPerPx();
     return {
       x:(r.left + r.width/2 - innerWidth/2)*w,
       y:-(r.top + r.height/2 - innerHeight/2)*w,
       w:r.width*w, h:r.height*w
     };
   }
-  function docCenterY(el){ var r = el.getBoundingClientRect(); return r.top + scrollY + r.height/2; }
+  function docCenterY(el){ var r = rectOf(el); return r.top + scrollY + r.height/2; }
 
   /* ------------------------------------------------------------------
      Anchors are SECTION SPANS, not points.
@@ -1011,7 +1080,7 @@
     { el:document.getElementById('anchor-hero'),     fit:0.94, yaw:-0.42, pitch:0.14 },
     { el:document.getElementById('anchor-services'), fit:0.924, yaw: 0.52, pitch:0.18 },
     { el:document.getElementById('anchor-why'),      fit:0.903, yaw:-0.55, pitch:0.14 },
-    { el:document.getElementById('dock-slot'),       fit:0.97, yaw: 0.0,  pitch:0.0 }
+    { el:document.getElementById('dock-slot'),       fit:0.96, yaw: 0.0,  pitch:0.0 }
   ].filter(function(k){ return k.el; });
 
   /* the section each slot lives in defines that anchor's scroll range */
@@ -1026,7 +1095,7 @@
      zones, so the handover flows out of one section and into the next instead
      of snapping at the boundary. */
   function spanOf(sec, isFirst, isLast) {
-    var r = sec.getBoundingClientRect();
+    var r = rectOf(sec);
     var top = r.top + scrollY, h = r.height;
     var pad = Math.max(Math.min(h * 0.16, innerHeight * 0.45), innerHeight * 0.16);
     if (pad > h * 0.34) pad = h * 0.34;          /* never eat a short section */
@@ -1159,7 +1228,7 @@
   }
   function resize(){
     var v = viewSize();
-    renderer.setPixelRatio(Math.min(devicePixelRatio, isPhone() ? 1.6 : 2));
+    renderer.setPixelRatio(Math.min(devicePixelRatio, isPhone() ? 1.25 : 1.5));
     renderer.setSize(v.w, v.h, false);
     camera.aspect = v.w / v.h;
     camera.updateProjectionMatrix();
@@ -1167,7 +1236,17 @@
   addEventListener('resize', function(){ applyMode(); resize(); pathPts = null; });
   /* scrolling changes every element's viewport rect, so the world-space
      route has to be re-derived rather than cached across scroll */
-  addEventListener('scroll', function(){ pathPts = null; }, { passive: true });
+  /* PERFORMANCE: this used to null the path on every scroll event, which
+     forced a full rebuild (360 sample points + 90 quad updates) on the very
+     next frame -- continuously, for the entire duration of any scroll. That
+     was the single biggest cause of the lag.
+
+     The route is defined in world space relative to the anchors, and
+     scrolling does not change where the anchors sit relative to each other
+     -- it only changes what is on screen. So the path does NOT need
+     rebuilding on scroll at all; it only needs it when the LAYOUT changes
+     (resize, orientation, mode switch, restore). Those are handled
+     separately below. */
   applyMode();
   resize();
 
@@ -1181,8 +1260,15 @@
     placed = false;              /* snap, don't glide, after a restore */
   });
   /* if the GPU drops the context, show the still instead of an empty gap */
+  /* if the GPU hands the context back, rebuild rather than stay blank */
+  renderer.domElement.addEventListener('webglcontextrestored', function () {
+    try { resize(); placed = false; if (modelBuffer) { loaded = false; buildModel(); } } catch (err) {}
+  });
   renderer.domElement.addEventListener('webglcontextlost', function (e) {
-    e.preventDefault(); fallback();
+    /* A lost context used to swap in the logo permanently. Prevent the
+       default so the browser will hand the context back, and wait for the
+       restore event below instead of replacing the wheel. */
+    e.preventDefault();
   });
   function smoothstep(t){ return t*t*(3-2*t); }
 
@@ -1193,8 +1279,30 @@
     return (scrollY + innerHeight * 0.5) >= span.lockStart;
   }
 
-  (function frame(){
+  (function frame(now){
     requestAnimationFrame(frame);
+
+    /* PERF: the loop used to run the full rig and issue a draw call every
+       frame regardless of whether the wheel was even on screen -- including
+       while the tab was in the background. Both are now skipped outright,
+       which is the single biggest saving on weaker machines because it
+       removes the GPU work entirely rather than just trimming it. */
+    if (document.hidden) return;
+
+    _rects.clear();          /* fresh measurements for this frame only */
+
+    /* Park check happens HERE, before the skip, using this frame's own
+       measurement. Previously the loop returned early on the parked class
+       but the code that clears it ran later in the same loop, so once the
+       wheel parked it could never come back. */
+    var parked = false;
+    if (!inlineMode && dockSlot && stageWrap) {
+      var pr = rectOf(dockSlot);
+      parked = pr.bottom < innerHeight * 0.12;
+      stageWrap.classList.toggle('is-parked', parked);
+    }
+    if (parked) return;      /* off screen: no rig, no draw call */
+
     if (!loaded) { renderer.render(scene,camera); return; }
 
     /* Desktop/tablet can leave the bay by scrolling back up, which the
@@ -1331,12 +1439,6 @@
       if (dockSlot) dockSlot.classList.remove('is-docked');
     }
 
-    /* hide the canvas entirely once the bay has scrolled away, so the
-       wheel can never overlap the quote form below it */
-    if (dockSlot) {
-      var r = dockSlot.getBoundingClientRect();
-      stageWrap.classList.toggle('is-parked', r.bottom < innerHeight * 0.12);
-    }
 
     /* Damping firms up as the wheel nears the bay. Once seated it is 1:1 with
        the slot — any easing there shows up as the wheel lagging a few pixels
@@ -1410,8 +1512,25 @@
     var wantVariant = (inside >= 0) ? inside : (travelling ? next : currentVariant);
     if (wantVariant >= 0) applyVariant(wantVariant);
 
-    if (!pathPts && !isPhone() && !inlineMode) buildTreadPath();
-    updateTreadPath(sm.x, sm.y, !docked && !inlineMode && !isPhone());
+    /* PERF: the route was rebuilt every frame even when the tread was not
+       being drawn -- while docked, or on a phone. Rebuilding costs 4 layout
+       reads plus 56 samples plus smoothing, so skipping it whenever the
+       track is hidden removes that entirely for those states. */
+    var treadVisible = !isPhone() && !inlineMode && !docked;
+    /* The route is rebuilt on alternate frames. The wheel itself still
+       moves every frame; the track beneath it simply refreshes at 30Hz,
+       which is not perceptible on a soft, low-opacity mark but halves the
+       cost of the most expensive part of the loop. */
+    treadTick++;
+    /* Build on alternate frames -- but always on the first frame, or after
+       anything invalidated the route, so it can never start out empty. */
+    var refreshTread = treadVisible && ((treadTick & 1) === 0 || !pathPts);
+    if (refreshTread) buildTreadPath();
+    /* Quads are only rewritten when the route was refreshed. On the
+       skipped frames the geometry is already correct, so re-issuing 36
+       transforms would be pure waste. When the tread is hidden it is
+       still called once to clear it. */
+    updateTreadPath(sm.x, sm.y, treadVisible);
 
     /* Blend toward the current target every frame -- while dragging that
        target is the (still per-frame-noisy) mouse delta, while idle it eases

@@ -259,10 +259,8 @@ def page(filename, active, title, desc, body, home=False, extra_head='', extra_s
 
 {FOOTER}
 
-<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js" defer></script>
 <script src="js/audio.js" defer></script>
 <script src="js/fx.js" defer></script>
-<script src="js/smooth-scroll.js" defer></script>
 {extra_scripts}
 </body>
 </html>
@@ -590,8 +588,54 @@ tires = {f.stem: 'assets/brand-tires/' + f.name
 _first = sorted(pathlib.Path('assets/brand-tires').glob('*.webp'))
 tire_front = tire_angle = ('assets/brand-tires/' + _first[0].name) if _first else ''
 
-_plate_file = pathlib.Path('assets/logo-plate.json')
-plate = _json.loads(_plate_file.read_text()) if _plate_file.exists() else []
+# Which marks need a white chip behind them?
+# Only the TRANSPARENT ones. A logo that already carries its own background
+# (Continental's yellow, Kumho's blue, Pirelli's) would otherwise show a
+# white rectangle around it -- a background on a background.
+# Detected from the artwork itself: if the image's border ring is mostly
+# opaque, the logo brings its own background and is left alone. Recomputed
+# every build, so swapping a logo file updates this automatically.
+def _needs_chip(path):
+    """True when a logo needs a white chip behind it.
+
+    A logo that already carries its own background (Goodyear's blue box,
+    Continental and Pirelli's yellow, Kumho's red) must NOT get one, or it
+    shows a white rectangle around its own background.
+
+    Detected from the artwork: take the opaque area's bounding box and
+    measure how full its middle 60% is. A solid background fills that core
+    completely; a wordmark or symbol leaves it around 30-65% full.
+
+    The size guard matters: a small dense fragment can score a full core
+    while plainly not being a background (Toyo's mark is 117x14px, about
+    2% of its canvas), so the bounding box must also cover a real share of
+    the image before it counts as one.
+    """
+    try:
+        from PIL import Image
+        import numpy as _np
+        a = _np.array(Image.open(path).convert('RGBA'))
+        op = a[..., 3] > 200
+        if not op.any():
+            return True
+        ys, xs = _np.where(op)
+        y0, y1, x0, x1 = ys.min(), ys.max(), xs.min(), xs.max()
+        bh, bw = y1 - y0 + 1, x1 - x0 + 1
+        core = op[y0 + int(bh * .2): y0 + int(bh * .8),
+                  x0 + int(bw * .2): x0 + int(bw * .8)]
+        if core.size == 0:
+            return True
+        solid_core = core.mean() > 0.9
+        big_enough = (bh * bw) / op.size > 0.15
+        return not (solid_core and big_enough)     # own background -> no chip
+    except Exception:
+        return True                                 # unsure -> chip it
+
+plate = sorted(
+    f.stem for f in sorted(pathlib.Path('assets/brands').glob('*.webp'))
+    if _needs_chip(f)
+)
+pathlib.Path('assets/logo-plate.json').write_text(_json.dumps(plate))
 
 brand_payload = ('<script>window.__OT_LOGO_PLATE__=' + _json.dumps(plate) +
                  ';window.__OT_BRAND_LOGOS__=' + _json.dumps(logos) +
@@ -599,8 +643,8 @@ brand_payload = ('<script>window.__OT_LOGO_PLATE__=' + _json.dumps(plate) +
                  ';window.__OT_BRAND_TIRES__=' + _json.dumps(tires) +
                  ';window.__OT_TIRE_FALLBACK__=' + _json.dumps({'front':tire_front,'angle':tire_angle}) +
                  ';</script>')
-print('  brand art: %d logos (%d flagged pale, plate styling retired), %d backdrops, %d tire photos (external)'
-      % (len(logos), len(plate), len(bgs), len(tires)))
+print('  brand art: %d logos (%d get a white chip, %d already have their own background), %d backdrops, %d tire photos'
+      % (len(logos), len(plate), len(logos) - len(plate), len(bgs), len(tires)))
 
 # ---- write shared, cacheable assets ----
 (R/'css').mkdir(exist_ok=True)
@@ -609,7 +653,6 @@ print('  brand art: %d logos (%d flagged pale, plate styling retired), %d backdr
 (R/'js/audio.js').write_text(audio)
 (R/'js/fx.js').write_text(fx)
 (R/'js/tire-wall.js').write_text((R/'source/js/tire-wall.js').read_text())
-(R/'js/smooth-scroll.js').write_text((R/'source/js/smooth-scroll.js').read_text())
 # source/ keeps the fully commented originals; js/ is what ships
 
 # ---- home ----

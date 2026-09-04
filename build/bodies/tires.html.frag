@@ -1,4 +1,5 @@
 <section class="page-hero">
+  <div class="page-hero__bg" style="background-image:url(https://i.ibb.co/C37byv16/tires.jpg)" aria-hidden="true"></div>
   <div class="wrap">
     <div class="crumb"><a href="index.html">Home</a> / Tires</div>
     <span class="eyebrow">The star product</span>

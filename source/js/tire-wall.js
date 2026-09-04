@@ -87,16 +87,53 @@
     var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     var A = function () { return window.OT_AUDIO; };
 
-    /* ---- dots ---- */
-    DATA.forEach(function (item, i) {
-      var d = document.createElement('button');
-      d.type = 'button';
-      d.className = 'config-dot' + (i === 0 ? ' is-active' : '');
-      d.setAttribute('aria-label', item.name);
-      d.addEventListener('click', function () { goTo(i); });
-      dots.appendChild(d);
+    /* ---- slider bar (replaces the old pagination dots) ----
+       Doubles as position indicator and control: the fill shows how far
+       through the 23 brands you are, and the whole track is clickable and
+       draggable to jump anywhere. 23 dots was too many to aim at on a
+       phone anyway -- a bar scales to any number of brands. */
+    dots.classList.add('config-slider');
+    dots.setAttribute('role', 'slider');
+    dots.setAttribute('aria-valuemin', '1');
+    dots.setAttribute('aria-valuemax', String(DATA.length));
+    dots.setAttribute('tabindex', '0');
+    dots.innerHTML =
+      '<span class="config-slider__track">' +
+        '<span class="config-slider__fill"></span>' +
+        '<span class="config-slider__thumb"></span>' +
+      '</span>';
+    var sliderFill  = dots.querySelector('.config-slider__fill');
+    var sliderThumb = dots.querySelector('.config-slider__thumb');
+
+    function indexFromPointer(clientX) {
+      var r = dots.getBoundingClientRect();
+      if (r.width <= 0) return 0;
+      var ratio = (clientX - r.left) / r.width;
+      ratio = ratio < 0 ? 0 : (ratio > 1 ? 1 : ratio);
+      return Math.round(ratio * (DATA.length - 1));
+    }
+    var sliderDragging = false;
+    function sliderPoint(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+    dots.addEventListener('mousedown', function (e) {
+      sliderDragging = true; goTo(indexFromPointer(sliderPoint(e))); e.preventDefault();
     });
-    var dotEls = Array.prototype.slice.call(dots.children);
+    dots.addEventListener('touchstart', function (e) {
+      sliderDragging = true; goTo(indexFromPointer(sliderPoint(e)));
+    }, { passive: true });
+    addEventListener('mousemove', function (e) {
+      if (sliderDragging) goTo(indexFromPointer(sliderPoint(e)));
+    });
+    dots.addEventListener('touchmove', function (e) {
+      if (sliderDragging) goTo(indexFromPointer(sliderPoint(e)));
+    }, { passive: true });
+    addEventListener('mouseup',  function () { sliderDragging = false; });
+    addEventListener('touchend', function () { sliderDragging = false; });
+    dots.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); step(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+      if (e.key === 'Home')       { e.preventDefault(); goTo(0); }
+      if (e.key === 'End')        { e.preventDefault(); goTo(DATA.length - 1); }
+    });
 
     root.querySelectorAll('[data-tire-prev]').forEach(function (b) {
       b.addEventListener('click', function () { step(-1); });
@@ -208,7 +245,14 @@
         var wrapEl = progress.parentElement;
         if (wrapEl) wrapEl.setAttribute('data-mobile', n + ' / ' + String(DATA.length).padStart(2, '0'));
       }
-      dotEls.forEach(function (d, i) { d.classList.toggle('is-active', i === index); });
+      /* slider position: fill and thumb both track the current brand */
+      var pct = DATA.length > 1 ? (index / (DATA.length - 1)) * 100 : 0;
+      if (sliderFill)  sliderFill.style.width = pct + '%';
+      if (sliderThumb) sliderThumb.style.left = pct + '%';
+      if (dots) {
+        dots.setAttribute('aria-valuenow', String(index + 1));
+        dots.setAttribute('aria-valuetext', item.name);
+      }
       if (live) live.textContent = item.name + ', brand ' + (index + 1) + ' of ' + DATA.length;
       stage.dataset.index = String(index);
     }

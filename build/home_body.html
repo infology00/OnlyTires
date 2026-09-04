@@ -109,20 +109,31 @@
 
 
 <!-- DOCK -->
-<section class="vsection">
+<section class="vsection dock-section">
   <div class="wrap">
     <div class="dock-head reveal">
       <span class="eyebrow">The install bay</span>
       <h2>Every Wheel Ends Up <span class="accent">Exactly Where It Belongs.</span></h2>
       <p class="lead" style="margin:var(--s2) auto 0">Mounted, balanced, torqued to spec — precision fit on every single install.</p>
     </div>
+
     <div class="dock-card reveal">
-      <div class="dock-specs">
+      <!-- Car side view, wheels off, sitting on stands. Drawn as vector so it
+           stays sharp at any size and so the wheel arch can be positioned to
+           the exact percentage the tire docks into. -->
+      <div class="dock-stage">
+        <!-- Real studio photograph, replacing the vector. Measured directly
+             from the file. The source had the hub at 65% across, so the
+             photo is cropped symmetrically around it: hub now (358,231) of
+             716x400 = exactly 50% across, 57.8% down, tire 36.3% wide. -->
+        <img class="dock-car" src="assets/car-bay.webp" alt="" decoding="async"
+             width="1432" height="800">
+        <div class="dock-slot" id="dock-slot"><span class="slot-label">Install Bay</span></div>
+      </div>
+
+      <div class="dock-steps">
         <div class="dock-spec"><span>Step 01</span><b>Mount</b><p>New tire seated on your wheel with pro equipment.</p></div>
         <div class="dock-spec"><span>Step 02</span><b>Balance</b><p>Computer-balanced so the ride stays glass-smooth.</p></div>
-      </div>
-      <div class="dock-slot" id="dock-slot"><span class="slot-label">Install Bay</span></div>
-      <div class="dock-specs right">
         <div class="dock-spec"><span>Step 03</span><b>Torque</b><p>Every lug torqued to factory spec — never guessed.</p></div>
         <div class="dock-spec"><span>Step 04</span><b>Road-Ready</b><p>TPMS checked, pressures set, back on the road.</p></div>
       </div>

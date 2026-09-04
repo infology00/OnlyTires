@@ -1,4 +1,5 @@
 <section class="page-hero">
+  <div class="page-hero__bg" style="background-image:url(https://i.ibb.co/XfXdh7Sh/about.jpg)" aria-hidden="true"></div>
   <div class="wrap">
     <div class="crumb"><a href="index.html">Home</a> / About</div>
     <span class="eyebrow">Who we are</span>

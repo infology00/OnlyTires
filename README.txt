@@ -1,6 +1,498 @@
 ONLYTIRES — only.tires
-v51
+v70
 ======================================================================
+
+WHAT CHANGED IN v70
+
+1. BLUE RING HATAYA + TIRE ARCH PAR SAHI BAITHAYA
+   Ring us waqt banaya tha jab wahan vector car thi aur arch khud
+   dikhta nahi tha. Ab asli photo hai jismein arch, brake disc aur red
+   caliper saaf hain -- ring us par ek extra graphic lag raha tha, to
+   hata diya (dark well aur "Install Bay" label bhi).
+
+   Position photo se dobara measure ki. Hub 50.0% across / 54.6% down
+   par hai, jabki CSS mein 57.8% tha -- isi liye tire neeche baith raha
+   tha. Size bhi 36.3% se 33% kiya aur model ka fit 1.0 se 0.96, kyunki
+   pehle tire arch se bahar nikal raha tha.
+
+2. HAR NAV PAGE KE HERO MEIN BACKGROUND IMAGE
+   Tires, Services, Fleet/Commercial, About (aur Contact) -- sab ko apna
+   backdrop mil gaya.
+
+   Services par ASLI photo hai: wahi car-bay wali studio image, wide
+   crop karke.
+
+   Baaki ke liye mere paas asli photos nahi thin aur network access bhi
+   nahi hai, to unke liye brand ke apne tread pattern se backdrops
+   generate kiye -- wahi tread jo 3D wheel peeche chhodta hai, blue mein,
+   dark navy field par diagonal tracks ki tarah. Har page ka apna
+   composition hai (Tires: do tracks, Fleet: teen lanes, About/Contact:
+   ek halka track), to alag alag lagte hain lekin ek hi language mein.
+
+   Text ke peeche gradient scrim hai. Contrast verify kiya: heading
+   7.6:1 se 11:1 tak, eyebrow 5.1:1 se 7.4:1 -- sab WCAG AA se upar.
+   Mobile par scrim horizontal se vertical ho jaata hai, kyunki wahan
+   text image ke upar centre mein aata hai.
+
+   Poora hero folder sirf 144 KB hai.
+
+   NOTE: agar aap in 4 pages ke liye asli photos de sakein (workshop,
+   truck fleet, shop front), to seedha assets/hero/ mein replace kar
+   dena -- naam wahi rakhna, baaki sab automatic chalega.
+
+WHAT CHANGED IN v69 — POORI WEBSITE KI SCROLL LAG
+
+Ab tak main sirf 3D rig optimize kar raha tha, lekin lag poore page par
+thi -- to wajah 3D se bahar bhi thi. Teen cheezein milin:
+
+1. STICKY HEADER PAR BACKDROP-FILTER (sabse bada, 3D se bilkul alag)
+   Header par blur(16px) laga tha. backdrop-filter compositor ko har
+   frame par uske PEECHE ka poora area dobara blur karne par majboor
+   karta hai. Header poori width par sticky hai, to har scroll frame par
+   ~245,000 pixels ka gaussian blur ho raha tha -- 60 baar per second,
+   chahe 3D tire screen par ho ya na ho. Yahi wajah thi ke poori site
+   scroll par bhaari lagti thi.
+
+   Ab thoda zyada opaque plain background hai (.94 alpha). Dekhne mein
+   tqreeban wahi, lekin compositor ke liye zero per-frame kaam.
+   Carousel arrows se bhi blur hataya.
+
+2. MERI v67 WALI BUG -- TIRE PARK HOKE WAPAS NAHI AATA THA
+   Maine loop mein early-return lagaya tha jab wheel 'is-parked' ho, taake
+   off-screen kaam bache. Lekin jo code un-park karta hai wo usi loop
+   mein NEECHE tha -- to ek baar park hone ke baad loop wahin ruk jaata
+   tha aur wheel kabhi wapas nahi aata.
+   Ab park check skip se PEHLE hota hai, usi frame ki apni measurement
+   se. Saving bhi rahi aur bug bhi gaya.
+
+3. FIXED OVERLAYS
+   Do full-viewport fixed layers (aurora gradient + grain texture) scroll
+   par repaint ho sakte thay. Ab apni compositor layer par hain, to ek
+   baar paint hoke reuse hote hain.
+
+Aur tread: route rebuild 30Hz par hi hai (wahi mehnga hissa tha), lekin
+quads ab har frame update hote hain -- to wipe wheel ke saath smooth
+chalta hai, steps mein nahi. v68 mein maine dono ko gate kar diya tha,
+jo choppy lag raha tha.
+
+WHAT CHANGED IN v68 — SCROLL CHOPPINESS
+
+Do asal wajahen milin, dono scroll ke doran hi trigger hoti thin:
+
+1. LAYOUT THRASHING (sabse bada)
+   frame() har frame mein ~12 baar getBoundingClientRect call kar raha
+   tha, AUR woh reads DOM writes ke beech mein thin (wheel ka transform,
+   class toggles, CSS variables). Har read se pehle browser ko pending
+   layout flush karna padta hai, to ek hi frame mein layout baar baar
+   recalculate hota tha -- yahi classic scroll jank hai.
+
+   Ab har element ek frame mein sirf EK BAAR measure hota hai aur cache
+   se share hota hai. 12 reads -> 1.
+
+2. DO ALAG rAF LOOPS, GHALAT ORDER MEIN
+   Lenis window.scrollY ko smooth karta hai, aur 3D rig wahi scrollY
+   parhta hai -- lekin dono apne apne rAF loop mein thay, to order
+   guaranteed nahi tha. Rig aksar pichhle frame ki scroll value parh
+   leta tha, jo wheel ke page se "judder" karne jaisa dikhta tha.
+
+   Ab ek hi loop hai: rig pehle Lenis ko advance karta hai, phir taaza
+   scroll parh kar render karta hai. Jin pages par rig nahi hai wahan
+   smooth-scroll apna loop khud chala leta hai.
+
+Iske ilawa:
+   - tread segments 56 -> 36 (20 kam draw calls per frame)
+   - tread route ab 30Hz par rebuild hota hai, wheel poore 60Hz par
+     chalta hai. Halke, low-opacity mark par ye farq dikhta nahi, lekin
+     loop ka sabse mehnga hissa aadha ho jata hai.
+   - jin frames mein route rebuild nahi hota, un mein 36 quad transforms
+     bhi skip ho jate hain (pehle wahi purani values dobara likhi jaati
+     thin).
+
+Total: scroll ke doran per-frame kaam mein ~62% kami, aur layout reads
+ab writes se alag hain.
+
+WHAT CHANGED IN v67
+
+· GOODYEAR KA DASHED BORDER HATA
+  v66 mein maine ise galat samjha. Jo light pixels box ke andar milay,
+  maine unhe "white outline" samajh kar restore kar diya -- woh dashed
+  border hi tha. Ab box ke bahri 16px band ke saare light pixels box ke
+  apne blue se paint kar diye. Baaki 0 light pixels bache, wordmark
+  bilkul chhua nahi gaya (woh andar hai).
+
+· 3D MODEL AB HAMESHA RAHEGA -- LOGO SWAP HATA DIYA
+  Yeh bug ka asal sabab mil gaya. fallback() 3D wheel ko OnlyTires ke
+  static logo se replace kar deta tha, aur woh sirf error par nahi chalta
+  tha:
+    - prefers-reduced-motion par bhi chalta tha
+    - WebGL context lost hone par bhi -- jo browser normally wapas de
+      deta hai, lekin humne permanently logo laga diya tha
+  Isi liye wheel kabhi kabhi bina wajah logo ban jaata tha.
+
+  Ab logo swap poori tarah nikal diya. Reduced-motion par model load
+  hota hai aur dikhta hai, bas animate nahi hota. Context lost hone par
+  ab restore ka intezaar hota hai aur wheel dobara ban jaata hai.
+
+· PERFORMANCE
+  Loop har frame poora rig chalata aur draw call bhejta tha, chahe wheel
+  screen par ho ya na ho. Ab:
+    - tab background mein ho          -> kuch bhi nahi chalta
+    - install bay se neeche scroll    -> kuch bhi nahi chalta
+    - wheel docked (tread hidden)     -> route rebuild nahi hota
+    - phone par                       -> route rebuild nahi hota
+  Pixel ratio 2x -> 1.5x (phone 1.6 -> 1.25): shading ke liye 44% kam
+  pixels, aur ek tire par farq mushkil se dikhta hai. Phones par MSAA
+  band, stencil buffer allocate nahi hota, aur GPU se explicitly
+  high-performance maanga jaata hai.
+
+WHAT CHANGED IN v66
+
+· GOODYEAR KE DASHED BORDERS FIX
+  Yeh CSS ka issue nahi tha -- artwork mein hi tha. v59 mein jab logos ka
+  white background strip kiya tha, Goodyear par woh pass zyada aggressive
+  raha:
+    - blue box ke edges par anti-aliased pixels transparent ho gaye, jisse
+      dashed outline ban gaya
+    - box ke ANDAR ~4000 pixels ka alpha bhi zero ho gaya (wordmark ke
+      aas-paas ka white outline)
+    - box ke upar/neeche stray pixels bikhre reh gaye
+
+  Repair: solid blue box ko measure karke crop kiya, jin holes ka colour
+  data bacha tha unhe wapas laaya (white outline), jin 548 pixels ka
+  colour bhi ud gaya tha unhe box ke blue se bhara, aur poore block ko
+  fully opaque kar diya.
+
+  Result: block ab 100% solid hai, ek bhi partial-alpha pixel nahi,
+  edges bilkul saaf.
+
+WHAT CHANGED IN v65
+
+· TOYO KA NAYA LOGO LAGA
+  Aapka bheja hua 3840x412 transparent logo install kar diya, baaki
+  brands ke format mein normalise karke (520x130 canvas, art trimmed
+  aur centred, alpha preserved).
+
+  Farq:
+      purana ink bbox   118 x 15 px  -> slot mein 2.0x UPSCALE, soft
+      naya   ink bbox   520 x 54 px  -> slot mein 0.46x downscale, sharp
+  Ab koi upscaling nahi hoti, to bilkul crisp dikhega.
+
+  Detection ne ise apne aap transparent maana aur white chip diya --
+  sahi, kyunki mark dark blue hai aur blue panel par bina chip ke dab
+  jaata. Bare logos wahi 4 hain: Continental, Goodyear, Kumho, Pirelli.
+
+WHAT CHANGED IN v64
+
+· GOODYEAR KA WHITE BACKGROUND HATA
+  v63 ka detection border-ring dekhta tha, jo Goodyear par fail hua: uska
+  blue box canvas ke border tak nahi jaata, to test ne usay transparent
+  samjha aur chip laga diya -- blue box ke peeche white rectangle.
+
+  Ab test badal diya: opaque area ke bounding box ka middle 60% kitna
+  bhara hai. Solid background core ko 100% bharta hai; sirf wordmark ya
+  symbol 30-65% par rehta hai. Goodyear ab 100% par sahi detect hota hai.
+
+  Ek size guard bhi lagaya: chhota dense fragment bhi core 100% de sakta
+  hai bina background hue -- Toyo ka mark 117x14px hai, canvas ka ~2%,
+  aur woh 92% score kar raha tha. Ab bounding box ko image ka meaningful
+  hissa bhi hona chahiye. Result: 4 logos bare (Continental, Goodyear,
+  Kumho, Pirelli), 19 ko chip.
+
+· SLOT KA SIZE AB FIXED HAI
+  Logos alag alag shapes ke hain, aur box content ke hisaab se size le
+  raha tha -- isliye brand change karte hi poora panel shrink/grow karta
+  tha. Ab slot fixed hai (260x64, mobile par chhota) aur har mark uske
+  ANDAR object-fit:contain se fit hota hai. Verify kiya: chaudhe
+  wordmarks width par rukte hain, lambe marks height par, koi bahar nahi
+  jaata, aur container ka size kabhi nahi badalta.
+
+· NOTE — TOYO
+  Toyo ka artwork sirf 118x15px ka reh gaya hai (v59 mein uska white
+  background strip karne ke baad). Slot mein 2x upscale hoga, to thoda
+  soft dikhega. Agar aap Toyo ka behtar transparent PNG de sakein to
+  seedha replace ho jayega -- baaki sab automatic hai.
+
+WHAT CHANGED IN v63
+
+· WHITE CHIP ONLY WHERE IT IS NEEDED
+  v62 put a white chip behind every mark, which meant the three logos
+  that already carry their own background (Continental yellow, Kumho red,
+  Pirelli yellow) showed a white rectangle around them -- a background on
+  a background.
+
+  The chip now applies only to the transparent marks. Which is which is
+  detected from the artwork at build time: if a logo's border ring is
+  mostly opaque it brings its own background and is left bare; if the
+  edges are transparent it gets the chip. 20 get a chip, 3 stay bare.
+  Recomputed every build, so replacing a logo file updates it
+  automatically -- no hand-maintained list to fall out of date.
+
+· SQUARE CORNERS
+  Chip border-radius 12px -> 0.
+
+· One detail worth flagging: with the chip removed, Kumho's red
+  background measures only 1.32:1 against the blue panel -- it reads as
+  a hue difference rather than a tonal one. Rather than putting a white
+  box back, the three bare logos get a soft drop shadow so they still
+  lift off the panel.
+
+WHAT CHANGED IN v62
+
+· CAROUSEL TIRES MADE BIGGER
+  The focus tire was capped at 240px, so it never filled the panel:
+      desktop  240px -> 380px  (+58%)
+      laptop   234px -> 360px  (+54%)
+      tablet   220px -> 261px  (+19%)
+      phone    170px -> 240px  (+41%)
+  The neighbouring tires grew with it and the glow behind scales up too.
+
+  Two things had to move with the size, or it would have looked broken:
+    - The viewer needed more height first. It has overflow:hidden, so a
+      bigger tire in the old container would simply have been cropped.
+      I checked each breakpoint against real viewport heights and caught
+      exactly that at 1024x768 -- a 292px tire in a 307px viewer -- and
+      raised the tablet viewer from 40vh to 46vh to fix it.
+    - The arrows sat midway between the old side and focus tires, so the
+      wider tire would have run underneath them. They move outward to
+      22% / 78% (and further on smaller screens). Verified clear of the
+      tire at every breakpoint.
+
+WHAT CHANGED IN v61
+
+· NEW CAR PHOTO, WHEEL CENTRED
+  Swapped to your higher-resolution shot (1024x559 source, much sharper
+  than the first one).
+
+  In the source the hub sat at 65% across, which is exactly why it looked
+  off-centre. The photo is now cropped symmetrically around the hub, so
+  the wheel sits at dead centre:
+      crop        (308,143)-(1024,543) -> 716 x 400
+      hub         (358, 231) = 50.0% across, 57.8% down
+      arch        ~216px wide, fender ~130px above the hub
+      tire        ~260px diameter = 36.3% of the image width
+  The tire is noticeably larger than in v60 too -- measured from the
+  actual arch rather than estimated from the brake disc, which had made
+  it too small.
+
+  Saved at 2x (1432x800) for retina, 59 KB.
+
+WHAT CHANGED IN v60
+
+· REAL CAR PHOTOGRAPH IN THE INSTALL BAY
+  Your generated image replaces the vector entirely. Placement was
+  measured from the file rather than eyeballed:
+      image        646 x 361  (aspect 1.789)
+      wheel hub    (354, 211) = 54.8% across, 58.5% down
+      arch opening ~133px wide = ~21% of the image width
+  The slot is set to exactly those percentages and the stage holds the
+  photo's own 646:361 ratio, so the tire stays on the hub at every
+  screen size.
+
+  The photo is now full-bleed across the card rather than sitting inside
+  padding, and the slot's own dark well was removed -- the photograph
+  already provides the recess, and the well was only muddying the brake
+  disc showing through behind the tire. The four steps sit on a dark
+  panel beneath the image. Saved at 2x for retina, 27 KB as WebP.
+
+WHAT CHANGED IN v59
+
+· LAG AND THE TREAD OFFSET WERE THE SAME BUG
+  In v58 I cached the tread route in document space to avoid rebuilding
+  it every frame. That was wrong: the "what we do" anchor is
+  position:sticky, so its document position changes continuously while
+  you scroll through that section. The cached route drifted away from
+  the wheel -- which is exactly the tread appearing to the RIGHT of the
+  tire rather than under it.
+
+  So the cache is gone and the path is rebuilt every frame again, but
+  made genuinely cheap rather than merely skipped:
+    - sampled 1:1 with the quad pool instead of 4x (360 -> 56 samples,
+      and the corner smoothing drops from 720 ops to 112)
+    - 90 tread quads -> 56 (they overlap, so the track is still
+      continuous, but that is 34 fewer meshes transformed AND drawn
+      every frame)
+    - material colour only uploaded when it actually changes, instead
+      of 90 needless GPU writes per frame
+
+  Weighted cost per frame: v57 1561 -> v59 457, a 71% reduction, and
+  correct this time. Verified the tread sits directly beneath the tire:
+  0.000000 horizontal offset at every point of a handover.
+
+· LOGO DOUBLE BACKGROUND FIXED PROPERLY
+  Six logos (Dunlop, Geostar, Goodyear, Michelin, Toyo, Triangle) had a
+  white box baked into the artwork, which sat inside the dark plate --
+  the double background you saw.
+
+  My earlier guard was wrong: it required 75% of a mark's ink to survive
+  removal, but for "dark text on a white box" the white IS most of the
+  pixels, so legitimate removals were being rejected. The correct test is
+  whether a readable DARK mark remains afterwards. All six now strip
+  cleanly.
+
+  With the white boxes gone, no logo needs a dark plate. But most marks
+  are dark and the copy panel is blue -- 14 of 23 measured below 1.8:1
+  against it. Plating some and not others is what made it look
+  accidental, so every logo now sits on one consistent white chip.
+
+  NOTE: I have no network access, so I could not search for replacement
+  transparent PNGs. The six were fixed by editing the artwork you already
+  have, which was possible because the white really was a background in
+  those files.
+
+· CAR REDRAWN
+  No network access means I cannot source a car photograph. The vector is
+  substantially rebuilt instead: multi-stop paint with a sky reflection
+  up top, a wrapped shoulder highlight and a darkened lower flank; tinted
+  glass with pillars and a reflection streak; a chrome window surround
+  and door handles; a proper headlight cluster; and a pressed arch lip
+  (bright inner edge, dark outer) instead of a flat cut-out. The empty
+  arch now shows a strut, hub, brake disc, red caliper and five lug studs.
+
+  If you can supply a side-view car photo (front facing right, wheels
+  off or croppable at the front wheel), I can drop it straight in --
+  the slot is positioned in percentages so it would only need the
+  arch coordinates adjusting to match the photo.
+
+WHAT CHANGED IN v58
+
+1. CAROUSEL RESTORED — my mistake in v57
+   When I replaced the install bay, my edit used the wrong end marker and
+   swallowed the entire brand carousel along with it. Recovered from your
+   v55 zip and spliced back in, keeping the new car dock. Section order is
+   correct again and the quote section is no longer duplicated:
+   hero / trust bar / what we do / why / DOCK / TIRE WALL / quote /
+   hoos / location.
+
+2. PERFORMANCE — found the actual cause
+   A scroll listener nulled the tread path on EVERY scroll event, which
+   forced a full rebuild on the very next frame: 4 getBoundingClientRect
+   calls, 360 path samples, then 180 resample and quad updates -- 544
+   heavy operations per frame, continuously, for the whole duration of
+   any scroll.
+
+   The route is defined relative to the anchors, and scrolling doesn't
+   change where those sit relative to each other, so it never needed
+   rebuilding on scroll at all. The path is now cached in DOCUMENT space
+   and the current scroll is applied as a single shared offset:
+       544 -> 181 operations per frame (67% less)
+       forced layout reflows per frame: 4 -> 0
+   The reflows matter more than the raw count -- that's what makes
+   scrolling stutter regardless of how fast the arithmetic is.
+
+   Worth noting: my first pass at this had the sign inverted. A test
+   comparing the cached point against a freshly measured one caught it
+   (the error grew to 38 world units as you scrolled). Correct
+   convention is store as (y - scroll*wpp), recover as (y + scroll*wpp),
+   because world y is the negative of screen y. Now exact to 0.0000000000
+   at every scroll position.
+
+3. INSTALL BAY — ZOOMED TO ONE WHEEL
+   You were right that showing the whole car left a second arch sitting
+   permanently empty and looking unfinished. It's now a close-up of the
+   FRONT RIGHT corner only, car facing right: bonnet and headlight to the
+   right, door and sill running off to the left, one arch, with the brake
+   disc and five lug bolts visible waiting for the wheel.
+
+   Geometry recalculated for the crop: wheel centre (500,380) radius 150,
+   arch radius 172 (22px clearance), ground at y=530 so the tire touches
+   it exactly. Slot at 50% / 61.3%, width 30%, on a 1000x620 stage that
+   holds the SVG's aspect ratio -- so it stays locked to the arch at
+   every screen size.
+
+WHAT CHANGED IN v57
+
+1. INSTALL BAY — CAR WITH ITS WHEELS OFF
+   The bay is now a side-view car up on jack stands with both arches
+   empty, and the 3D tire docks into the front arch.
+
+   No car photo existed in the project and I can't generate images, so
+   it's drawn as vector SVG. That turned out better for this anyway:
+   it stays sharp at any size, and the arch can be positioned to an
+   exact percentage so the tire lands in it accurately.
+
+   The geometry was worked out rather than eyeballed, because a tire
+   that floats above the ground or pokes through the bodywork would
+   look wrong immediately:
+       wheel centre (264, 330), radius 96
+       arch opening radius 110  -> 14px clearance around the tire
+       ground line y = 426      -> tire touches it exactly
+   The slot is placed in PERCENTAGES of the artwork (left 26.4%, top
+   71.7%, width 19.2%) and the stage holds the SVG's own 1000x460
+   aspect ratio, so the tire stays locked to the arch at every screen
+   size. The four steps moved to a row beneath the car.
+
+   Section now fills the viewport (100svh), stacking on mobile.
+
+2a. WHITE LOGO BACKGROUNDS — PARTLY POSSIBLE, AND WORTH READING
+   Checked all 23 marks. Only ONE (Goodyear) actually had a white
+   background baked behind it -- removed, by flood-filling white inward
+   from the border so enclosed white inside the mark is never touched.
+
+   Five others (Dunlop, Geostar, Michelin, Toyo, Triangle) look like
+   they have white backgrounds but do NOT: they ARE white artwork.
+   My first pass stripped them and gutted the logos -- Toyo dropped from
+   25% ink to 2%, i.e. the mark was destroyed. I reverted that and added
+   a guard: if removing the "background" costs more than 25% of a mark's
+   ink, it wasn't a background and the file is left alone.
+
+   Those five would be invisible on the light carousel panel (~1.05:1
+   contrast), so they keep a dark rounded backing. That is the only way
+   to show a white logo on a light surface -- there is nothing to remove.
+   If you want them plain, they need re-supplying as dark versions.
+
+2b. SLIDER BAR REPLACES THE PAGINATION DOTS
+   A track with a fill and thumb, showing how far through the 23 brands
+   you are. Click or drag anywhere to jump; arrow keys, Home and End all
+   work; announced properly to screen readers. 23 dots was never
+   realistically tappable on a phone, and a bar scales to any number of
+   brands. Verified it reaches brand 1 and brand 23, clamps when dragged
+   past either end, and moves monotonically.
+
+2c. Carousel section now fills the viewport too (100svh).
+
+WHAT CHANGED IN v56
+
+· TREAD MARKS MADE MORE PROMINENT
+  Raised well past the 10% asked for, and raised across the whole
+  curve rather than just the peak:
+      fresh imprint   0.38 -> 0.52   (+37%)
+      faded mark ahead 0.07 -> 0.10  (+43%)
+      10 segments back 0.182 -> 0.292 (+61%)
+      20 segments back 0.036 -> 0.100 (+177%)
+
+  The faded lead-in mark was lifted alongside the fresh one, otherwise
+  raising only the peak would have widened the gap and lost the
+  "following an existing path" read. FADE_SEGMENTS was also stretched
+  26 -> 32, because decaying at the old rate from a higher peak would
+  simply have made the fade look steeper instead of the track staying
+  readable further back. Peak is still 0.52, under the halfway mark, so
+  it stays on the premium side rather than becoming a black smear.
+
+· MOBILE PASS
+  Added as one deliberate layer at the END of the stylesheet, so it
+  wins cleanly over the previously scattered breakpoints instead of
+  fighting them. Covers:
+    - even vertical rhythm; sections no longer bunch or gap unevenly
+    - display type rescaled so headings never crowd the screen edges
+    - hero CTAs full width and stacked, 52px tall
+    - all multi-column blocks collapsed to one column with even gaps
+    - forms single-column, inputs 48px tall and 16px text
+      (16px specifically: anything smaller makes iOS zoom on focus,
+      which is a classic thing that makes a site feel unfinished)
+    - service rows drop the arrow rather than squeezing three columns
+    - install bay, carousel, location, footer all stacked and centred
+    - every link and button meets the 44px minimum touch target
+    - a tighter layer for phones under 400px
+    - a landscape-phone layer: short viewports no longer force
+      full-height sections into a cramped sliver
+
+  Verified: CSS braces balanced, no broken calc(), no horizontal
+  overflow risk, viewport meta correct on every page, and all rules
+  survived minification.
+
+  NOTE: index.html is now a Coming Soon cover (added outside this
+  session) with its own inline styles and its own mobile breakpoint --
+  left untouched. home.html is the full site.
 
 WHAT CHANGED IN v51 -- CLIENT TREAD BRIEF, IMPLEMENTED IN FULL
 

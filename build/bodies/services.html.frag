@@ -1,4 +1,5 @@
 <section class="page-hero">
+  <div class="page-hero__bg" style="background-image:url(https://i.ibb.co/ccPqDzPS/services.jpg)" aria-hidden="true"></div>
   <div class="wrap">
     <div class="crumb"><a href="index.html">Home</a> / Services</div>
     <span class="eyebrow">Full tire service</span>

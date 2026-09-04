@@ -14,15 +14,9 @@
     var isReloadOrFresh = !nav || nav.type === 'reload' || nav.type === 'navigate';
     if (isReloadOrFresh) {
       if (scrollY !== 0) scrollTo(0, 0);
-      /* some browsers restore the offset a tick after load. By the time
-         'load' fires, smooth-scroll.js has very likely already created
-         window.OT_LENIS -- route through it if so, so Lenis's own idea of
-         "where we are" stays in sync instead of drifting back toward a
-         stale target and re-animating away from the top a moment later. */
+      /* some browsers restore the offset a tick after load */
       addEventListener('load', function () {
-        if (scrollY === 0) return;
-        if (window.OT_LENIS) window.OT_LENIS.scrollTo(0, { immediate: true });
-        else scrollTo(0, 0);
+        if (scrollY !== 0) scrollTo(0, 0);
       });
     }
   })();

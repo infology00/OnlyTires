@@ -1,4 +1,5 @@
 <section class="page-hero">
+  <div class="page-hero__bg" style="background-image:url(assets/hero/contact.webp)" aria-hidden="true"></div>
   <div class="wrap">
     <div class="crumb"><a href="index.html">Home</a> / Contact</div>
     <span class="eyebrow">Get a quote / book</span>

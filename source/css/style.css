@@ -308,7 +308,10 @@ html.ot-seen .preloader{display:none!important}
 /* a section holding a form must never crop it: if the viewport is short the
    section grows instead of the panel being cut off */
 .vsection:has(.quote-panel){height:auto;padding-block:var(--s6)}
-.vsection--alt{background:rgba(255,255,255,.55);border-block:1px solid var(--line);backdrop-filter:blur(4px)}
+/* backdrop-filter removed: three full-width sections each forced the
+   compositor to re-blur everything behind them on every scroll frame. A
+   plain translucent tint reads almost identically and costs nothing. */
+.vsection--alt{background:rgba(255,255,255,.62);border-block:1px solid var(--line)}
 .vsection > .wrap{width:100%}
 /* hero accounts for the sticky header */
 .hero.vsection{min-height:calc(100vh - var(--header-h));min-height:calc(100svh - var(--header-h));padding:var(--s6) 0}
@@ -896,7 +899,16 @@ html.ot-seen .preloader{display:none!important}
    The build still computes the plate flag and tire-wall.js still applies
    the class, so restoring the treatment is a style change and nothing
    more. */
-.config-logo.on-plate{background:none;padding:0 var(--s1);box-shadow:none}
+/* Five of the brand wordmarks (Dunlop, Geostar, Michelin, Toyo, Triangle)
+   ARE white artwork -- the white is the logo, not a background behind it,
+   so it cannot be stripped without destroying the mark. On this light
+   panel they would be invisible (~1.05:1 contrast), so those specific
+   marks get a dark rounded backing instead. Flagged automatically from
+   the artwork at build time. */
+.config-logo.on-plate{
+  background:var(--ink);padding:6px var(--s2);border-radius:10px;
+  box-shadow:0 6px 18px -6px rgba(16,32,74,.45);
+}
 .config-copy__kicker{
   margin:0;color:#AFC2FF;font-size:10.5px;letter-spacing:.18em;
   text-transform:uppercase;font-weight:700;
@@ -1127,5 +1139,577 @@ html.ot-seen .preloader{display:none!important}
     margin-left:auto;margin-right:auto;
     text-align:center;
     text-wrap:balance;
+  }
+}
+
+/* ============================================================
+   MOBILE POLISH PASS
+   A single, deliberate layer at the end of the sheet so it wins
+   cleanly over the earlier scattered breakpoints instead of
+   fighting them. Targets the things that actually read as
+   unfinished on a phone: cramped rhythm, oversized display type,
+   multi-column blocks squeezed into one column, and touch
+   targets below the 44px minimum.
+   ============================================================ */
+@media (max-width:760px){
+
+  /* --- rhythm: tighter, even vertical spacing throughout --- */
+  .vsection{padding:var(--s8) 0}
+  .vsection + .vsection{padding-top:var(--s6)}
+  .hero.vsection{padding:var(--s5) 0 var(--s8)}
+  .section-head{margin-bottom:var(--s4)}
+  .wrap{padding-left:var(--s3);padding-right:var(--s3)}
+
+  /* --- display type: scaled so headings never crowd the edges --- */
+  h1{font-size:clamp(32px,8.4vw,42px);line-height:1.02}
+  h2{font-size:clamp(24px,6.2vw,32px);line-height:1.06}
+  h3{font-size:clamp(17px,4.6vw,20px)}
+  .lead{font-size:15px;line-height:1.6}
+  .eyebrow{font-size:10px;letter-spacing:.2em;margin-bottom:var(--s1)}
+
+  /* --- hero: full-width stacked CTAs, comfortable to tap --- */
+  .hero-grid{gap:var(--s4)}
+  .hero-actions{flex-direction:column;align-items:stretch;width:100%;gap:10px}
+  .hero-actions .btn{width:100%;min-height:52px}
+  .hero-meta{gap:6px var(--s2);font-size:12.5px}
+
+  /* --- cards: single column, even gaps, generous padding --- */
+  .tiles,.tiles--stack{grid-template-columns:1fr;gap:var(--s2)}
+  .tile{padding:var(--s3)}
+  .split{grid-template-columns:1fr;gap:var(--s4)}
+  .stats{grid-template-columns:1fr 1fr;gap:10px}
+  .stat{padding:var(--s2)}
+  .checklist{gap:var(--s2)}
+
+  /* --- service rows: icon + text, arrow dropped rather than squeezed --- */
+  .svc-rows{gap:10px}
+  .svc-row{grid-template-columns:40px 1fr;gap:var(--s2);padding:var(--s3) var(--s2);min-height:64px}
+  .svc-row .go{display:none}
+  .svc-row h3{font-size:17px}
+  .svc-row p{font-size:13.5px}
+
+  /* --- forms: one column, inputs at a comfortable tap height --- */
+  .quote-panel{grid-template-columns:1fr}
+  .quote-side{padding:var(--s4) var(--s3)}
+  .quote-form{padding:var(--s3);grid-template-columns:1fr;gap:12px}
+  .form-row{display:grid;grid-template-columns:1fr;gap:12px}
+  .form-row > .field,.quote-form > .field{grid-column:1 / -1}
+  .field input,.field select,.field textarea{
+    min-height:48px;font-size:16px;   /* 16px stops iOS zooming on focus */
+    padding:12px var(--s2);
+  }
+  .field textarea{min-height:96px;height:auto}
+  .filedrop{min-height:56px;padding:12px}
+  .quote-form .btn--lg{width:100%;min-height:52px;justify-self:stretch}
+
+  /* --- install bay: stacked, centred, nothing clipped --- */
+  .dock-card{grid-template-columns:1fr;padding:var(--s5) var(--s3);gap:var(--s4);text-align:center}
+  .dock-specs,.dock-specs.right{text-align:center;gap:var(--s3)}
+  .dock-slot{margin:0 auto}
+
+  /* --- carousel: legible copy, tappable controls --- */
+  .tire-config{padding:var(--s6) 0}
+  .tire-config__head{grid-template-columns:1fr;gap:var(--s2)}
+  .config-copy{padding:var(--s3) var(--s2)}
+  .config-blurb{font-size:13px;line-height:1.5}
+  .config-arrow{width:46px;height:46px}   /* 44px+ touch target */
+  .tire-config__controls{grid-template-columns:1fr;gap:12px;padding:var(--s3) var(--s2)}
+  .config-learn{width:100%;justify-content:center;min-height:48px}
+  .config-progress{justify-content:center}
+
+  /* --- location + hoos --- */
+  .loc-grid{grid-template-columns:1fr;gap:var(--s3)}
+  .loc-card{padding:var(--s3)}
+  .loc-map,.loc-map iframe{min-height:220px}
+  .hoos-card{grid-template-columns:1fr;padding:var(--s4) var(--s3);text-align:left}
+
+  /* --- footer --- */
+  .footer-grid{grid-template-columns:1fr;gap:var(--s4);padding:var(--s6) var(--s3) var(--s4)}
+  .footer-bottom{flex-direction:column;text-align:center;gap:10px;padding:var(--s3) var(--s2)}
+
+  /* --- every link/button meets the 44px minimum touch target --- */
+  .nav-links a,.mobile-bar a,.btn{min-height:44px}
+  .tile-link,.site-footer a{display:inline-block;padding:4px 0}
+}
+
+/* very small phones: drop to the tightest comfortable rhythm */
+@media (max-width:400px){
+  .wrap{padding-left:var(--s2);padding-right:var(--s2)}
+  .stats{grid-template-columns:1fr}
+  .vsection{padding:var(--s6) 0}
+  h1{font-size:clamp(28px,8.6vw,34px)}
+  .dock-card{padding:var(--s4) var(--s2)}
+  .quote-side,.quote-form{padding:var(--s3) var(--s2)}
+}
+
+/* landscape phones: the viewport is short, so full-height sections
+   would otherwise force everything into a cramped sliver */
+@media (max-width:900px) and (orientation:landscape) and (max-height:520px){
+  .vsection,.hero.vsection,.tire-config{min-height:auto;padding:var(--s6) 0}
+  .nav-links{padding-top:var(--s8);padding-bottom:var(--s6)}
+  .nav-links a{font-size:clamp(18px,4.6vw,24px);padding:var(--s2) var(--s1)}
+}
+
+/* ============================================================
+   v57 — SLIDER BAR + FULL-SCREEN SECTIONS
+   ============================================================ */
+
+/* --- slider bar, replacing the 23 pagination dots --- */
+.config-slider{
+  position:relative;display:flex;align-items:center;
+  width:100%;min-width:0;height:34px;cursor:pointer;
+  padding:0 var(--s2);touch-action:pan-y;user-select:none;
+}
+.config-slider:focus-visible{outline:2px solid var(--blue-hot);outline-offset:4px;border-radius:99px}
+.config-slider__track{
+  position:relative;display:block;width:100%;height:4px;border-radius:99px;
+  background:rgba(16,32,74,.16);overflow:visible;
+}
+.config-slider__fill{
+  position:absolute;left:0;top:0;height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--blue),var(--blue-hot));
+  transition:width .28s var(--ease-soft);
+}
+.config-slider__thumb{
+  position:absolute;top:50%;width:16px;height:16px;border-radius:50%;
+  transform:translate(-50%,-50%);background:#fff;
+  border:2px solid var(--blue);
+  box-shadow:0 3px 10px -2px rgba(16,32,74,.5);
+  transition:left .28s var(--ease-soft),transform .18s var(--ease-soft);
+}
+.config-slider:hover .config-slider__thumb{transform:translate(-50%,-50%) scale(1.15)}
+.config-slider:active .config-slider__thumb{transform:translate(-50%,-50%) scale(1.05)}
+
+/* the controls row now carries a full-width slider between the counter
+   and the button, so give the middle column the room to stretch */
+.tire-config__controls{grid-template-columns:auto minmax(0,1fr) auto}
+
+/* ============================================================
+   FULL-SCREEN SECTIONS
+   The install bay and the brand carousel are the two showpiece
+   moments, so both fill the viewport rather than sitting as
+   short bands. Height accounts for the sticky header, and uses
+   svh/dvh so mobile browser chrome doesn't crop them.
+   ============================================================ */
+.dock-section,
+.vsection.tire-config{
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;align-items:center;
+  padding-top:var(--s6);padding-bottom:var(--s6);
+}
+.dock-section > .wrap,
+.vsection.tire-config > .wrap{width:100%}
+
+/* the bay artwork scales with the viewport so it fills the screen
+   without ever overflowing it */
+.dock-card{min-height:min(64vh,560px)}
+
+@media (max-width:1000px){
+  .dock-section,.vsection.tire-config{min-height:auto;padding:var(--s8) 0}
+  .dock-card{min-height:0}
+}
+
+/* ============================================================
+   INSTALL BAY — car with its wheels off
+   The tire docks into the front arch. Everything is positioned in
+   PERCENTAGES of the artwork box, and the box holds the SVG's own
+   1000x430 aspect ratio, so the tire stays locked to the arch at
+   every screen size instead of drifting as the layout changes.
+   ============================================================ */
+.dock-card{
+  display:block;position:relative;
+  padding:var(--s6) var(--s5);
+}
+.dock-stage{
+  position:relative;width:100%;
+  aspect-ratio:1000 / 620;      /* matches the SVG viewBox exactly */
+  max-width:820px;
+  margin:0 auto;
+}
+.dock-car{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+  filter:drop-shadow(0 24px 40px rgba(10,15,30,.35));
+}
+/* Zoomed on the single front-right arch. Geometry worked out so the tire
+   sits in the opening and touches the ground: wheel centre (500,380) r150,
+   arch r172 (22px clearance), ground y530.
+   left 500/1000 = 50%, top 380/620 = 61.3%, size 300/1000 = 30%. */
+.dock-card .dock-slot{
+  position:absolute;
+  left:50%;
+  top:61.3%;
+  width:30%;
+  aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  margin:0;
+}
+.dock-card .dock-slot::before{
+  /* the arch already provides the recess, so soften the slot's own well */
+  box-shadow:inset 0 10px 30px rgba(0,0,0,.55);
+  background:radial-gradient(closest-side,rgba(10,15,30,.85) 55%,rgba(17,28,62,.5) 78%,transparent 100%);
+}
+.dock-steps{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s3);
+  margin-top:var(--s5);
+}
+.dock-steps .dock-spec p{max-width:none;white-space:normal}
+
+@media (max-width:1000px){
+  .dock-card{padding:var(--s5) var(--s3)}
+  .dock-steps{grid-template-columns:repeat(2,1fr);gap:var(--s3) var(--s2);margin-top:var(--s4)}
+}
+@media (max-width:640px){
+  .dock-steps{grid-template-columns:1fr 1fr;gap:var(--s2)}
+  .dock-steps .dock-spec b{font-size:17px}
+  .dock-steps .dock-spec p{font-size:12.5px}
+  .dock-card{padding:var(--s4) var(--s2)}
+}
+
+/* ============================================================
+   BRAND LOGO CHIP — one consistent treatment
+   The white boxes baked into six logos (Dunlop, Geostar, Goodyear,
+   Michelin, Toyo, Triangle) have been stripped from the artwork, so
+   the "white box inside a dark box" is gone. What remains is that
+   most marks are dark and the copy panel is blue: 14 of 23 measured
+   below 1.8:1 against it. Plating some and not others is what made
+   the treatment look accidental, so every logo now sits on the same
+   white chip -- consistent, deliberate, all 23 fully legible.
+   ============================================================ */
+.config-logo{
+  background:#fff;
+  padding:8px var(--s3);
+  border-radius:12px;
+  box-shadow:0 6px 20px -8px rgba(6,16,50,.5);
+  height:auto;
+}
+.config-logo img{max-height:34px}
+.config-logo.on-plate{background:#fff;box-shadow:0 6px 20px -8px rgba(6,16,50,.5)}
+@media (max-width:640px){
+  .config-logo{padding:6px var(--s2)}
+  .config-logo img{max-height:28px}
+}
+
+/* ============================================================
+   INSTALL BAY — real photograph, wheel centred
+   In the source image the hub sat at 65% across, which is why it read
+   as off-centre. The photo is cropped symmetrically around the hub so
+   it now sits at exactly 50%.
+
+   Measured from the cropped file (716x400):
+     hub            (358, 231) = 50.0% across, 57.8% down
+     arch opening   ~216px wide, fender ~130px above the hub
+     tire diameter  ~260px     = 36.3% of the image width
+   The stage holds the photo's 716:400 ratio so these stay accurate at
+   every screen size.
+   ============================================================ */
+.dock-card{padding:0;background:#12161C;border:0}
+.dock-stage{
+  position:relative;width:100%;max-width:none;
+  aspect-ratio:716 / 400;
+  overflow:hidden;border-radius:var(--radius) var(--radius) 0 0;
+}
+.dock-car{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;display:block;filter:none;
+}
+.dock-card .dock-slot{
+  position:absolute;
+  left:50%;
+  top:57.8%;
+  width:36.3%;
+  aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  margin:0;
+}
+/* the photo already provides the recess and shadow, so the slot's own
+   dark well is dropped -- it would only muddy the brake disc behind */
+.dock-card .dock-slot::before{background:none;box-shadow:none}
+.dock-steps{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s3);
+  margin:0;padding:var(--s5);
+  background:linear-gradient(160deg,#0A0F1E 0%,#101B3F 80%);
+}
+@media (max-width:1000px){
+  .dock-steps{grid-template-columns:repeat(2,1fr);gap:var(--s3) var(--s2);padding:var(--s4) var(--s3)}
+}
+@media (max-width:640px){
+  .dock-steps{grid-template-columns:1fr 1fr;gap:var(--s2);padding:var(--s3) var(--s2)}
+}
+
+/* ============================================================
+   CAROUSEL — larger tire images
+   The focus tire was capped at 240px inside a viewer only ~360px tall,
+   so it never filled the panel. Both grow together here: the viewer has
+   to gain height first, otherwise overflow:hidden would simply crop the
+   bigger tire.
+   ============================================================ */
+.tire-config__viewer{min-height:clamp(320px,48vh,540px)}
+
+/* focus tire: 240px -> 380px, and a taller vh cap so it scales up on
+   large screens instead of stopping early */
+.config-focus{width:min(40vh,380px)}
+.config-focus__img{filter:drop-shadow(0 30px 38px rgba(0,0,0,.55))}
+
+/* neighbours grow with it, still clearly secondary */
+.config-rack__side{width:min(34vh,300px)}
+.config-rack__side--prev{left:4%;transform:translateY(-50%) scale(.6)}
+.config-rack__side--next{right:4%;transform:translateY(-50%) scale(.6)}
+.config-rack.is-stepping .config-rack__side--prev{transform:translateY(-50%) scale(.54) translateX(-10px)}
+.config-rack.is-stepping .config-rack__side--next{transform:translateY(-50%) scale(.54) translateX(10px)}
+
+/* the arrows sat midway between the old side and focus tires; with the
+   focus tire wider they would now overlap it, so they move outward */
+.config-arrow--prev{left:22%}
+.config-arrow--next{left:78%}
+
+/* the glow behind the tire scales with it */
+.config-stage__glow{width:60%;max-width:520px}
+
+@media (max-width:1000px){
+  /* viewer raised from 40vh to 46vh: at 1024x768 the old pairing gave a
+     292px tire inside a 307px viewer, which overflow:hidden would have
+     cropped. Checked across viewport heights rather than assumed. */
+  .tire-config__viewer{min-height:clamp(300px,46vh,460px)}
+  .config-focus{width:min(34vh,300px)}
+  .config-rack__side{width:min(30vh,240px)}
+  .config-arrow--prev{left:20%}
+  .config-arrow--next{left:80%}
+}
+@media (max-width:760px){
+  .tire-config__viewer{min-height:clamp(240px,34vh,320px)}
+  .config-focus{width:min(32vh,240px)}
+  .config-rack__side{width:min(26vh,200px)}
+  .config-arrow--prev{left:16%}
+  .config-arrow--next{left:84%}
+}
+@media (max-width:420px){
+  /* neighbours are hidden this small, so the focus tire takes the room */
+  .config-focus{width:min(34vh,260px)}
+  .config-arrow--prev{left:10%}
+  .config-arrow--next{left:90%}
+}
+
+/* ============================================================
+   BRAND LOGO CHIP — only where it is actually needed
+   Previously every mark sat on a white chip, which put a white
+   rectangle around the three logos that already carry their own
+   background (Continental, Kumho, Pirelli) -- a background on a
+   background. The chip is now applied ONLY to the transparent marks,
+   via the .on-plate flag the build computes from the artwork itself.
+   Square corners as requested.
+   ============================================================ */
+.config-logo{
+  background:none;
+  box-shadow:none;
+  border-radius:0;
+  padding:0 var(--s1);
+  height:auto;
+}
+.config-logo.on-plate{
+  background:#fff;
+  border-radius:0;                /* sharp corners */
+  padding:8px var(--s3);
+  box-shadow:0 6px 20px -8px rgba(6,16,50,.5);
+}
+.config-logo img{max-height:34px}
+@media (max-width:640px){
+  .config-logo.on-plate{padding:6px var(--s2)}
+  .config-logo img{max-height:28px}
+}
+
+/* Logos that carry their own background get a soft drop shadow instead of
+   a chip, so they still lift off the blue panel. Kumho's red measures only
+   1.32:1 against it, which is a hue difference rather than a tonal one --
+   the shadow gives it an edge without putting a white box back. */
+.config-logo:not(.on-plate) img{
+  filter:drop-shadow(0 4px 10px rgba(6,16,50,.55));
+}
+
+/* ============================================================
+   LOGO SLOT — fixed size so the panel never jumps
+   The logos are all different shapes, so sizing the box to its contents
+   made the whole panel shrink and grow as you stepped through brands.
+   The slot is now a fixed box and every mark is fitted INSIDE it with
+   object-fit:contain: wide wordmarks hit the width limit, tall marks hit
+   the height limit, and the container itself never changes size.
+
+   The chip is drawn on that same fixed box, so the four logos that carry
+   their own background (Continental, Goodyear, Kumho, Pirelli) occupy an
+   identical footprint without a white rectangle behind them.
+   ============================================================ */
+.config-logo{
+  width:260px;
+  height:64px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border-radius:0;
+}
+.config-logo img{
+  width:100%;
+  height:100%;
+  max-width:none;
+  max-height:none;
+  object-fit:contain;
+  padding:6px 10px;
+}
+.config-logo.on-plate{
+  background:#fff;
+  border-radius:0;
+  box-shadow:0 6px 20px -8px rgba(6,16,50,.5);
+}
+@media (max-width:760px){
+  .config-logo{width:210px;height:54px}
+}
+@media (max-width:420px){
+  .config-logo{width:180px;height:48px}
+}
+
+/* ============================================================
+   SCROLL PERFORMANCE — whole page
+   ============================================================ */
+
+/* Header blur: 16px -> 10px. Blur cost scales with radius squared, so
+   this is roughly 60% cheaper for a difference that is hard to see on a
+   bar this thin. It is the only backdrop-filter left on the page. */
+.site-header::before{
+  backdrop-filter:blur(10px) saturate(1.3);
+  -webkit-backdrop-filter:blur(10px) saturate(1.3);
+}
+
+/* The dashed ring around the install bay was rotating forever with an
+   animated box-shadow on it. A rotating transform is cheap on its own,
+   but this element also has a blurred shadow that follows --dock-near,
+   so it kept repainting. It now only rotates while the wheel is nearby
+   or seated -- the rest of the time it is still. */
+.dock-slot::after{animation-play-state:paused}
+.dock-slot.is-docked::after,
+.dock-slot:hover::after{animation-play-state:running}
+
+/* Promote the fixed 3D canvas to its own compositor layer so the page
+   underneath scrolls without re-rasterising it, and hint at the two
+   things that change every frame. */
+#gl-stage{will-change:opacity;transform:translateZ(0)}
+
+/* Long sections below the fold are skipped by layout and paint until
+   they approach the viewport. contain-intrinsic-size keeps the scrollbar
+   honest while they are skipped. Not applied to sections the 3D rig
+   measures, since those must always be laid out. */
+.vsection:has(.quote-panel),
+.vsection:has(.hoos-card),
+.vsection:has(.loc-grid){
+  content-visibility:auto;
+  contain-intrinsic-size:auto 700px;
+}
+
+/* ============================================================
+   SCROLL PERFORMANCE — backdrop blur hataya
+   backdrop-filter compositor ko har frame par uske PEECHE ka poora
+   area dobara blur karne par majboor karta hai. Sticky header poori
+   width par baitha hai, to har scroll frame par ek full-width strip
+   re-blur hoti thi -- chahe 3D tire screen par ho ya na ho. Yahi
+   wajah thi ke poori website scroll par bhaari lagti thi.
+
+   Blur ki jagah thoda zyada opaque background: dekhne mein tqreeban
+   wahi, lekin compositor ke liye ye ek plain layer hai jise wo bina
+   kisi per-frame kaam ke handle karta hai.
+   ============================================================ */
+.site-header::before{
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  background:rgba(240,242,247,.94);
+}
+.config-arrow{
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  background:rgba(255,255,255,.95);
+}
+
+/* Do full-viewport fixed overlays (aurora gradient aur grain texture) har
+   scroll par repaint ho sakte hain kyunki wo page ke saath move nahi karte.
+   `transform:translateZ(0)` unhe apni compositor layer de deta hai, to wo
+   ek baar paint hoke reuse hote hain -- scroll ke doran zero repaint. */
+body::before,
+body::after{
+  transform:translateZ(0);
+  backface-visibility:hidden;
+}
+/* the 3D canvas is composited constantly, so keep it on its own layer too */
+#gl-stage{ transform:translateZ(0); }
+
+/* ============================================================
+   INSTALL BAY — ring hataya, tire arch par sahi baithaya
+   Blue dashed ring vector wali car ke liye tha, jahan arch khud nahi
+   dikhta tha. Ab asli photo hai jismein arch, disc aur caliper saaf
+   dikhte hain -- ring us par ek extra graphic lagta tha, to hata diya.
+
+   Position photo se dobara measure ki:
+     hub    50.0% across, 54.6% down   (CSS mein 57.8% tha -> neeche tha)
+     tire   33% width                   (36.3% tha -> arch se bahar nikal
+                                         raha tha)
+   ============================================================ */
+.dock-card .dock-slot::after{display:none}          /* blue dashed ring */
+.dock-card .dock-slot::before{display:none}         /* dark well */
+.dock-card .dock-slot .slot-label{display:none}
+
+.dock-card .dock-slot{
+  left:50%;
+  top:54.6%;
+  width:33%;
+}
+
+/* ============================================================
+   PAGE HERO — background image
+   Har page ka apna backdrop. Text ke peeche ek scrim hai, jiske
+   bina light text kabhi kabhi photo ke bright hisse par dab jaata.
+   Image ko apni compositor layer par rakha hai taake scroll par
+   repaint na ho.
+   ============================================================ */
+.page-hero{
+  background:#0A0F1E;
+  color:#fff;
+  border-bottom:0;
+  min-height:62vh;
+}
+ .page-hero__bg{
+  position:absolute;inset:0;z-index:0;
+  background-size:cover;
+  background-position:center;
+  transform:scale(1.02) translateZ(0);
+  filter:saturate(.88) contrast(1.04);
+}
+/* blue-tinted photo scrim: keeps the OnlyTires palette consistent
+   while letting each page's subject remain visible */
+.page-hero__bg::after{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(90deg,
+      rgba(5,18,58,.84) 0%,
+      rgba(13,50,145,.58) 45%,
+      rgba(23,65,214,.34) 100%),
+    linear-gradient(180deg,
+      rgba(23,65,214,.18) 0%,
+      rgba(7,17,44,.28) 100%);
+}
+.page-hero > .wrap{position:relative;z-index:1}
+.page-hero .crumb,
+.page-hero .crumb a{color:rgba(226,234,248,.72)}
+.page-hero .crumb a:hover{color:#fff}
+.page-hero .eyebrow{color:#8FA6FF}
+.page-hero h1{color:#fff}
+.page-hero h1 .accent{color:#8FA6FF}
+.page-hero .lead{color:rgba(226,234,248,.86)}
+.page-hero .btn--primary{box-shadow:0 18px 40px -18px rgba(0,0,0,.8)}
+
+@media (max-width:760px){
+  .page-hero{min-height:auto;padding:var(--s8) 0 var(--s6)}
+  .page-hero__bg::after{
+    background:linear-gradient(180deg,
+      rgba(6,11,24,.72) 0%,
+      rgba(6,11,24,.86) 60%,
+      rgba(6,11,24,.94) 100%);
   }
 }

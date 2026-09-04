@@ -168,20 +168,31 @@
 
 
 <!-- DOCK -->
-<section class="vsection">
+<section class="vsection dock-section">
   <div class="wrap">
     <div class="dock-head reveal">
       <span class="eyebrow">The install bay</span>
       <h2>Every Wheel Ends Up <span class="accent">Exactly Where It Belongs.</span></h2>
       <p class="lead" style="margin:var(--s2) auto 0">Mounted, balanced, torqued to spec — precision fit on every single install.</p>
     </div>
+
     <div class="dock-card reveal">
-      <div class="dock-specs">
+      <!-- Car side view, wheels off, sitting on stands. Drawn as vector so it
+           stays sharp at any size and so the wheel arch can be positioned to
+           the exact percentage the tire docks into. -->
+      <div class="dock-stage">
+        <!-- Real studio photograph, replacing the vector. Measured directly
+             from the file. The source had the hub at 65% across, so the
+             photo is cropped symmetrically around it: hub now (358,231) of
+             716x400 = exactly 50% across, 57.8% down, tire 36.3% wide. -->
+        <img class="dock-car" src="assets/car-bay.webp" alt="" decoding="async"
+             width="1432" height="800">
+        <div class="dock-slot" id="dock-slot"><span class="slot-label">Install Bay</span></div>
+      </div>
+
+      <div class="dock-steps">
         <div class="dock-spec"><span>Step 01</span><b>Mount</b><p>New tire seated on your wheel with pro equipment.</p></div>
         <div class="dock-spec"><span>Step 02</span><b>Balance</b><p>Computer-balanced so the ride stays glass-smooth.</p></div>
-      </div>
-      <div class="dock-slot" id="dock-slot"><span class="slot-label">Install Bay</span></div>
-      <div class="dock-specs right">
         <div class="dock-spec"><span>Step 03</span><b>Torque</b><p>Every lug torqued to factory spec — never guessed.</p></div>
         <div class="dock-spec"><span>Step 04</span><b>Road-Ready</b><p>TPMS checked, pressures set, back on the road.</p></div>
       </div>
@@ -479,11 +490,9 @@
 </div>
 <button class="sound-toggle" aria-label="Toggle sound"><i></i><i></i><i></i><i></i></button>
 
-<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js" defer></script>
 <script src="js/audio.js" defer></script>
 <script src="js/fx.js" defer></script>
-<script src="js/smooth-scroll.js" defer></script>
-<script>window.__OT_LOGO_PLATE__=["dunlop", "geostar", "michelin", "pirelli", "toyo", "triangle"];window.__OT_BRAND_LOGOS__={"bfgoodrich": "assets/brands/bfgoodrich.webp", "bridgestone": "assets/brands/bridgestone.webp", "continental": "assets/brands/continental.webp", "cooper": "assets/brands/cooper.webp", "dunlop": "assets/brands/dunlop.webp", "falken": "assets/brands/falken.webp", "firestone": "assets/brands/firestone.webp", "general": "assets/brands/general.webp", "geostar": "assets/brands/geostar.webp", "goodyear": "assets/brands/goodyear.webp", "hankook": "assets/brands/hankook.webp", "kelly": "assets/brands/kelly.webp", "kumho": "assets/brands/kumho.webp", "michelin": "assets/brands/michelin.webp", "milestar": "assets/brands/milestar.webp", "nankang": "assets/brands/nankang.webp", "nitto": "assets/brands/nitto.webp", "pirelli": "assets/brands/pirelli.webp", "sumitomo": "assets/brands/sumitomo.webp", "toyo": "assets/brands/toyo.webp", "triangle": "assets/brands/triangle.webp", "uniroyal": "assets/brands/uniroyal.webp", "yokohama": "assets/brands/yokohama.webp"};window.__OT_BRAND_BGS__={"bfgoodrich": "assets/brand-bg/bfgoodrich.webp", "bridgestone": "assets/brand-bg/bridgestone.webp", "continental": "assets/brand-bg/continental.webp", "cooper": "assets/brand-bg/cooper.webp", "dunlop": "assets/brand-bg/dunlop.webp", "falken": "assets/brand-bg/falken.webp", "firestone": "assets/brand-bg/firestone.webp", "general": "assets/brand-bg/general.webp", "geostar": "assets/brand-bg/geostar.webp", "goodyear": "assets/brand-bg/goodyear.webp", "hankook": "assets/brand-bg/hankook.webp", "kelly": "assets/brand-bg/kelly.webp", "kumho": "assets/brand-bg/kumho.webp", "michelin": "assets/brand-bg/michelin.webp", "milestar": "assets/brand-bg/milestar.webp", "nankang": "assets/brand-bg/nankang.webp", "nitto": "assets/brand-bg/nitto.webp", "pirelli": "assets/brand-bg/pirelli.webp", "race-track": "assets/brand-bg/race-track.webp", "sumitomo": "assets/brand-bg/sumitomo.webp", "toyo": "assets/brand-bg/toyo.webp", "triangle": "assets/brand-bg/triangle.webp", "uniroyal": "assets/brand-bg/uniroyal.webp", "yokohama": "assets/brand-bg/yokohama.webp"};window.__OT_BRAND_TIRES__={"bfgoodrich": "assets/brand-tires/bfgoodrich.webp", "bridgestone": "assets/brand-tires/bridgestone.webp", "continental": "assets/brand-tires/continental.webp", "cooper": "assets/brand-tires/cooper.webp", "dunlop": "assets/brand-tires/dunlop.webp", "falken": "assets/brand-tires/falken.webp", "firestone": "assets/brand-tires/firestone.webp", "general": "assets/brand-tires/general.webp", "geostar": "assets/brand-tires/geostar.webp", "goodyear": "assets/brand-tires/goodyear.webp", "hankook": "assets/brand-tires/hankook.webp", "kelly": "assets/brand-tires/kelly.webp", "kumho": "assets/brand-tires/kumho.webp", "michelin": "assets/brand-tires/michelin.webp", "milestar": "assets/brand-tires/milestar.webp", "nankang": "assets/brand-tires/nankang.webp", "nitto": "assets/brand-tires/nitto.webp", "pirelli": "assets/brand-tires/pirelli.webp", "sumitomo": "assets/brand-tires/sumitomo.webp", "toyo": "assets/brand-tires/toyo.webp", "triangle": "assets/brand-tires/triangle.webp", "uniroyal": "assets/brand-tires/uniroyal.webp", "yokohama": "assets/brand-tires/yokohama.webp"};window.__OT_TIRE_FALLBACK__={"front": "assets/brand-tires/bfgoodrich.webp", "angle": "assets/brand-tires/bfgoodrich.webp"};</script>
+<script>window.__OT_LOGO_PLATE__=["bfgoodrich", "bridgestone", "cooper", "dunlop", "falken", "firestone", "general", "geostar", "hankook", "kelly", "michelin", "milestar", "nankang", "nitto", "sumitomo", "toyo", "triangle", "uniroyal", "yokohama"];window.__OT_BRAND_LOGOS__={"bfgoodrich": "assets/brands/bfgoodrich.webp", "bridgestone": "assets/brands/bridgestone.webp", "continental": "assets/brands/continental.webp", "cooper": "assets/brands/cooper.webp", "dunlop": "assets/brands/dunlop.webp", "falken": "assets/brands/falken.webp", "firestone": "assets/brands/firestone.webp", "general": "assets/brands/general.webp", "geostar": "assets/brands/geostar.webp", "goodyear": "assets/brands/goodyear.webp", "hankook": "assets/brands/hankook.webp", "kelly": "assets/brands/kelly.webp", "kumho": "assets/brands/kumho.webp", "michelin": "assets/brands/michelin.webp", "milestar": "assets/brands/milestar.webp", "nankang": "assets/brands/nankang.webp", "nitto": "assets/brands/nitto.webp", "pirelli": "assets/brands/pirelli.webp", "sumitomo": "assets/brands/sumitomo.webp", "toyo": "assets/brands/toyo.webp", "triangle": "assets/brands/triangle.webp", "uniroyal": "assets/brands/uniroyal.webp", "yokohama": "assets/brands/yokohama.webp"};window.__OT_BRAND_BGS__={"bfgoodrich": "assets/brand-bg/bfgoodrich.webp", "bridgestone": "assets/brand-bg/bridgestone.webp", "continental": "assets/brand-bg/continental.webp", "cooper": "assets/brand-bg/cooper.webp", "dunlop": "assets/brand-bg/dunlop.webp", "falken": "assets/brand-bg/falken.webp", "firestone": "assets/brand-bg/firestone.webp", "general": "assets/brand-bg/general.webp", "geostar": "assets/brand-bg/geostar.webp", "goodyear": "assets/brand-bg/goodyear.webp", "hankook": "assets/brand-bg/hankook.webp", "kelly": "assets/brand-bg/kelly.webp", "kumho": "assets/brand-bg/kumho.webp", "michelin": "assets/brand-bg/michelin.webp", "milestar": "assets/brand-bg/milestar.webp", "nankang": "assets/brand-bg/nankang.webp", "nitto": "assets/brand-bg/nitto.webp", "pirelli": "assets/brand-bg/pirelli.webp", "race-track": "assets/brand-bg/race-track.webp", "sumitomo": "assets/brand-bg/sumitomo.webp", "toyo": "assets/brand-bg/toyo.webp", "triangle": "assets/brand-bg/triangle.webp", "uniroyal": "assets/brand-bg/uniroyal.webp", "yokohama": "assets/brand-bg/yokohama.webp"};window.__OT_BRAND_TIRES__={"bfgoodrich": "assets/brand-tires/bfgoodrich.webp", "bridgestone": "assets/brand-tires/bridgestone.webp", "continental": "assets/brand-tires/continental.webp", "cooper": "assets/brand-tires/cooper.webp", "dunlop": "assets/brand-tires/dunlop.webp", "falken": "assets/brand-tires/falken.webp", "firestone": "assets/brand-tires/firestone.webp", "general": "assets/brand-tires/general.webp", "geostar": "assets/brand-tires/geostar.webp", "goodyear": "assets/brand-tires/goodyear.webp", "hankook": "assets/brand-tires/hankook.webp", "kelly": "assets/brand-tires/kelly.webp", "kumho": "assets/brand-tires/kumho.webp", "michelin": "assets/brand-tires/michelin.webp", "milestar": "assets/brand-tires/milestar.webp", "nankang": "assets/brand-tires/nankang.webp", "nitto": "assets/brand-tires/nitto.webp", "pirelli": "assets/brand-tires/pirelli.webp", "sumitomo": "assets/brand-tires/sumitomo.webp", "toyo": "assets/brand-tires/toyo.webp", "triangle": "assets/brand-tires/triangle.webp", "uniroyal": "assets/brand-tires/uniroyal.webp", "yokohama": "assets/brand-tires/yokohama.webp"};window.__OT_TIRE_FALLBACK__={"front": "assets/brand-tires/bfgoodrich.webp", "angle": "assets/brand-tires/bfgoodrich.webp"};</script>
 <script src="js/tire-wall.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js" defer></script>
